@@ -77,14 +77,35 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Resources.NotFoundException;
+import android.graphics.Bitmap;
+import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.Paint;
+import android.graphics.Rect;
+import android.graphics.Typeface;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.location.Location;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
 import android.preference.PreferenceManager;
+import android.text.Layout;
 import android.text.SpannableString;
+import android.text.SpannableStringBuilder;
+import android.text.Spanned;
 import android.text.method.LinkMovementMethod;
+import android.text.style.AlignmentSpan;
+import android.text.style.BackgroundColorSpan;
+import android.text.style.DrawableMarginSpan;
+import android.text.style.DynamicDrawableSpan;
+import android.text.style.IconMarginSpan;
+import android.text.style.ImageSpan;
+import android.text.style.LineHeightSpan;
+import android.text.style.StyleSpan;
+import android.text.style.TextAppearanceSpan;
 import android.text.util.Linkify;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -100,7 +121,9 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.ActionBar;
+import androidx.core.content.res.ResourcesCompat;
 import androidx.core.text.HtmlCompat;
 import androidx.core.util.Supplier;
 
@@ -336,7 +359,16 @@ public class NewMap extends AbstractActionBarActivity implements XmlRenderThemeM
         myLocSwitch.setButtonDrawable(R.drawable.ic_menu_myposition);
         item.setActionView(myLocSwitch);
         initMyLocationSwitchButton(myLocSwitch);
+
+        iconize(menu);
         return result;
+    }
+
+    private void iconize(final Menu menu) {
+        for(int i=0;i<menu.size();i++) {
+            final MenuItem mi = menu.getItem(i);
+           // addIcon(mi, mi.getTitle());
+        }
     }
 
     @Override
@@ -356,6 +388,8 @@ public class NewMap extends AbstractActionBarActivity implements XmlRenderThemeM
             } else {
                 itemMapLive.setTitle(res.getString(R.string.map_live_enable));
             }
+
+
             itemMapLive.setVisible(mapOptions.coords == null || mapOptions.mapMode == MapMode.LIVE);
 
             final Set<String> visibleCacheGeocodes = caches.getVisibleCacheGeocodes();
@@ -387,11 +421,68 @@ public class NewMap extends AbstractActionBarActivity implements XmlRenderThemeM
             // can be moved to IndividualRouteUtils as soon as setAutoTarget is available for all map types
             menu.findItem(R.id.menu_autotarget_individual_route).setVisible(true).setChecked(Settings.getAutotargetIndividualRoute());
 
+            addIcon(itemMapLive, mapOptions.isLiveEnabled ? R.string.map_live_disable : R.string.map_live_enable);
+            addIcon(menu.findItem(R.id.menu_select_mapview), R.string.map_view_map);
+            addIcon(menu.findItem(R.id.menu_store_caches), R.string.caches_store_all);
+
         } catch (final RuntimeException e) {
             Log.e("NewMap.onPrepareOptionsMenu", e);
         }
 
         return true;
+    }
+
+    private void addIcon(final MenuItem item, final int titleId) {
+        addIcon(item, getString(titleId));
+    }
+
+    private void addIcon(final MenuItem item, final CharSequence origTitle) {
+
+
+        Drawable drawable = item.getIcon();
+        if (drawable == null) {
+            drawable = getResources().getDrawable(R.drawable.marker_found);
+            //drawable = ResourcesCompat.getDrawable(getResources(), android.R.color.transparent, getTheme());
+        }
+
+        final SpannableStringBuilder builder = new SpannableStringBuilder("-  "+origTitle);
+        builder.setSpan(new BackgroundColorSpan(getResources().getColor(android.R.color.holo_red_dark)), 0, builder.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+        builder.setSpan(new CenteringDrawableMarginSpan(drawable, 30), 0, builder.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+
+        item.setTitle(builder); // used in dropdown menu
+        item.setTitleCondensed(origTitle); //used when displayed in action bar
+
+    }
+
+    public static class CenteringDrawableMarginSpan extends DrawableMarginSpan {
+
+        final Drawable drawable;
+
+        public CenteringDrawableMarginSpan(final Drawable drawable, final int pad) {
+            super(drawable, pad);
+            this.drawable = drawable;
+        }
+
+         @Override
+        public void chooseHeight(final CharSequence text, final int start, final int end,
+                                 final int istartv, int v,
+                                 final Paint.FontMetricsInt fm) {
+            if (end == ((Spanned) text).getSpanEnd(this)) {
+                int ht = drawable.getIntrinsicHeight();
+
+                int need = ht - (v + fm.descent - fm.ascent - istartv);
+                if (need > 0) {
+                    fm.descent += need/2;
+                    fm.ascent -= need/2;
+                }
+
+                need = ht - (v + fm.bottom - fm.top - istartv);
+                if (need > 0) {
+                    fm.bottom += need/2;
+                    fm.top -= need/2;
+                }
+            }
+        }
     }
 
     @Override
