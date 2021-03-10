@@ -1,0 +1,174 @@
+apply plugin: 'jacoco'
+
+ext {
+    coverageSourceDirs = 'src/test/java'
+}
+
+jacoco {
+    toolVersion = '0.8.6'
+    reportsDir = file("$buildDir/reports")
+}
+
+//task jacocoTestReport(type: JacocoReport, dependsOn: "testDebugUnitTest") {
+//    group = "Reporting"
+//    description = "Creates Jacoc Test Report"
+//
+//    reports {
+//        xml.enabled = true
+//        html.enabled = true
+//    }
+//
+//    def excludes = [
+//        '**/R.class',
+//        '**/R$*.class',
+//        '**/BuildConfig.*',
+//        '**/Manifest*.*',
+//        '**/*Test*.*',
+//        '**/com/example/databinding/*',
+//        '**/com/example/generated/callback/*',
+//        '**/android/databinding/*',
+//        '**/androidx/databinding/*',
+//        '**/di/module/*',
+//        '**/*MapperImpl*.*',
+//        '**/*$ViewInjector*.*',
+//        '**/*$ViewBinder*.*',
+//        '**/BuildConfig.*',
+//        '**/*Component*.*',
+//        '**/*BR*.*',
+//        '**/Manifest*.*',
+//        '**/*$Lambda$*.*',
+//        '**/*Companion*.*',
+//        '**/*Module.*', /* filtering Dagger modules classes */
+//        '**/*Dagger*.*',/* filtering Dagger-generated classes */
+//        '**/*MembersInjector*.*',
+//        '**/*_Factory*.*',
+//        '**/*_Provide*Factory*.*',
+//        '**/*Extensions*.*',
+//        '**/*$Result.*', /* filtering `sealed` and `data` classes */
+//        '**/*$Result$*.*', /* filtering `sealed` and `data` classes */
+//        '**/*Args*.*', /* filtering Navigation Component generated classes */
+//        '**/*Directions*.*' /* filtering Navigation Component generated classes */
+//    ]
+//
+//    def debugTree = fileTree(
+//        dir: "$buildDir/intermediates/java/"
+//    )
+//
+//
+//}
+
+tasks.withType(Test) {
+    jacoco.includeNoLocationClasses = true
+    jacoco.excludes = ['jdk.internal.*'] // see related issue https://github.com/gradle/gradle/issues/5184#issuecomment-457865951
+}
+
+tasks.withType(Test) { jacoco.includeNoLocationClasses = true }
+
+project.afterEvaluate {
+
+    (android.hasProperty('applicationVariants')
+        ? android.'applicationVariants'
+        : android.'libraryVariants').all { variant ->
+        def variantName = variant.name
+        def unitTestTask = "test${variantName.capitalize()}UnitTest"
+        def uiTestCoverageTask = "create${variantName.capitalize()}CoverageReport"
+
+        if (!variant.buildType.testCoverageEnabled) {
+            return
+        }
+
+
+        tasks.create(name: "${unitTestTask}JacocoReport", type: JacocoReport, dependsOn: [
+            "$unitTestTask",
+            //"$uiTestCoverageTask",
+        ]) {
+            group = "Reporting"
+            description = "Generate Jacoco coverage reports for the ${variantName.capitalize()} build"
+
+            reports {
+                html.enabled = true
+                xml.enabled = true
+                csv.enabled = false
+            }
+
+            def fileFilter = [
+                '**/R.class',
+                '**/R$*.class',
+                '**/BuildConfig.*',
+                '**/Manifest*.*',
+                '**/*Test*.*',
+                '**/com/example/databinding/*',
+                '**/com/example/generated/callback/*',
+                '**/android/databinding/*',
+                '**/androidx/databinding/*',
+                '**/di/module/*',
+                '**/*MapperImpl*.*',
+                '**/*$ViewInjector*.*',
+                '**/*$ViewBinder*.*',
+                '**/BuildConfig.*',
+                '**/*Component*.*',
+                '**/*BR*.*',
+                '**/Manifest*.*',
+                '**/*$Lambda$*.*',
+                '**/*Companion*.*',
+                '**/*Module.*', /* filtering Dagger modules classes */
+                '**/*Dagger*.*',/* filtering Dagger-generated classes */
+                '**/*MembersInjector*.*',
+                '**/*_Factory*.*',
+                '**/*_Provide*Factory*.*',
+                '**/*Extensions*.*',
+                '**/*$Result.*', /* filtering `sealed` and `data` classes */
+                '**/*$Result$*.*', /* filtering `sealed` and `data` classes */
+                '**/*Args*.*', /* filtering Navigation Component generated classes */
+                '**/*Directions*.*' /* filtering Navigation Component generated classes */
+            ]
+
+            classDirectories.setFrom(files([
+                fileTree(dir: "${buildDir}/intermediates/javac/${variantName}UnitTest/classes")
+            ]))
+
+            def coverageSourceDirs = [
+                "$project.rootDir/app/src/main/java"
+            ]
+            additionalSourceDirs.setFrom(files(coverageSourceDirs))
+            sourceDirectories.setFrom(files(coverageSourceDirs))
+
+            def uiTestsData = fileTree(dir: "${buildDir}/outputs/code_coverage/${variantName}AndroidTest/connected/", includes: ["**/*.ec"])
+
+            executionData(files([
+                "$project.buildDir/jacoco/${unitTestTask}.exec",
+                uiTestsData
+            ]))
+
+
+//
+//
+//            classDirectories.setFrom(files([
+//                fileTree(dir: "${buildDir}/tmp/kotlin-classes/${variantName}", excludes: fileFilter),
+//                fileTree(dir: "$project.rootDir/module1/build/tmp/kotlin-classes/debug", excludes: fileFilter),
+//                fileTree(dir: "$project.rootDir/module2/build/tmp/kotlin-classes/debug", excludes: fileFilter),
+//                fileTree(dir: "$project.rootDir/moduleN/build/tmp/kotlin-classes/debug", excludes: fileFilter),
+//            ]))
+//
+//            def coverageSourceDirs = [
+//                "$project.rootDir/app/src/main/java",
+//                "$project.projectDir/src/${variantName}/java",
+//                "$project.rootDir/module1/src/main/java",
+//                "$project.rootDir/module2/src/main/java",
+//                "$project.rootDir/moduleN/src/main/java"
+//            ]
+//            additionalSourceDirs.setFrom(files(coverageSourceDirs))
+//            sourceDirectories.setFrom(files(coverageSourceDirs))
+//
+//            def uiTestsData = fileTree(dir: "${buildDir}/outputs/code_coverage/${variantName}AndroidTest/connected/", includes: ["**/*.ec"])
+//
+//            executionData(files([
+//                "$project.buildDir/jacoco/${unitTestTask}.exec",
+//                uiTestsData,
+//                "$project.rootDir/module1/build/jacoco/testDebugUnitTest.exec",
+//                "$project.rootDir/module2/build/jacoco/testDebugUnitTest.exec",
+//                "$project.rootDir/moduleN/build/jacoco/testDebugUnitTest.exec"
+//            ]))
+        }
+    }
+}

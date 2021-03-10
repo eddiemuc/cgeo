@@ -19,6 +19,9 @@ buildscript {
 
         // ribbonizer for easier distinction of non-release builds
         classpath 'com.github.gfx.ribbonizer:ribbonizer-plugin:2.1.0'
+
+        //Jacoco for test coverage
+        classpath "org.jacoco:org.jacoco.core:0.8.6"
     }
 }
 
