@@ -1,6 +1,8 @@
-package btools.routingapp;
+package cgeo.geocaching.brouter;
 
 interface IBRouterService {
+
+
     //param params--> Map of params:
     //  "pathToFileResult"-->String with the path to where the result must be saved, including file name and extension
     //                    -->if null, the track is passed via the return argument
