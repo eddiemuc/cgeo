@@ -8,7 +8,7 @@ import android.os.RemoteException;
 
 import androidx.annotation.Nullable;
 
-import btools.routingapp.IBRouterService;
+import cgeo.geocaching.brouter.IBRouterService;
 
 public class BRouterServiceConnection implements ServiceConnection {
     private IBRouterService brouterService;
