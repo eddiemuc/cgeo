@@ -153,8 +153,7 @@
     <string name="log_problem_archive_label">Тайник должен быть заархивирован</string>
     <string name="log_problem_archive_text">Этот пользователь сообщил, что тайник должен быть заархивирован. Сообщество добровольцев было уведомлено.</string>
     <string name="log_image_scale_option_noscaling">Без масштабирования</string>
-    <string name="log_image_scale_option_entry">%1$d x %2$d px</string>
-    <string name="log_image_scale_option_entry_noimage">%1$d px</string>
+    <string name="log_image_scale_option_entry">%1$d px</string>
     <string name="log_image_titleprefix">Фотография</string>
     <!-- translation -->
     <string name="translate_to_sys_lang">Перевести на %s</string>
@@ -445,7 +444,7 @@
     <string name="contribution_documentation">документация</string>
     <string name="contribution_projectleader">лидер проекта</string>
     <string name="contribution_graphics">графика</string>
-    <string name="debug_user_error_explain_options">Помогите нам исправить проблемы c:geo, сообщив об этом по электронной почте (не забудьте добавить системную информацию и логи c:geo). Пожалуйста, также укажите подробное описание ошибки в вашем сообщении. Другие параметры контактов можно найти в \"О c:geo\"</string>
+    <string name="debug_user_error_explain_options_html"><![CDATA[<p>Помогите нам исправить проблемы c:geo, сообщив об этом по электронной почте (не забудьте добавить системную информацию и логи c:geo). Пожалуйста, также укажите подробное описание ошибки в вашем сообщении. Другие параметры контактов можно найти в <i>О c:geo</i></p>]]></string>
     <!-- settings -->
     <string name="settings_title_open_settings">Открыть настройки?</string>
     <string name="settings_title_services">Сервисы</string>
@@ -609,7 +608,6 @@
     <string name="init_restore_restored">Восстановление завершено</string>
     <string name="init_backup_start_restore">Восстановить из резервной копии</string>
     <string name="init_backup_restore_different_backup">Восстановить другую резервную копию</string>
-    <string name="init_backup_restore_different_backup_explanation">Выберите папку, содержащую резервную копию</string>
     <string name="init_backup_backup_history">История резервного копирования</string>
     <string name="init_backup_history_length_title">Максимальное количество хранящихся резервных копий</string>
     <string name="init_backup_history_length_summary">Выберите сколько резервных копий хранить. Когда количество превышено, самые старые копии будут удалены автоматически.</string>
@@ -622,7 +620,6 @@
     <string name="init_backup_unnecessary">База данных пуста, резервное копирование не нужно.</string>
     <string name="init_backup_folder_exists_error">Не удалось создать новую папку резервного копирования. Может, вы только что уже создали резервную копию?</string>
     <string name="init_backup_no_backup_available">Отсутствует файл резервной копии.</string>
-    <string name="backup_confirm_overwrite">Это удалит вашу старую существующую папку резервного копирования из %s. \nПродолжить?</string>
     <string name="restore_confirm_overwrite_database">ВНИМАНИЕ: Это перезапишет %s на вашем устройстве!</string>
     <string name="restore_confirm_overwrite_database_and_settings">ВНИМАНИЕ: Это перезапишет %s и ваши текущие настройки на вашем устройстве!</string>
     <string name="restore_confirm_overwrite_settings">ВНИМАНИЕ: Это перезапишет текущие настройки на вашем устройстве!</string>
@@ -999,7 +996,6 @@
     <string name="cache_menu_challenge_checker">Поиск проверки испытания</string>
     <string name="cache_menu_ignore">Игнорировать тайник</string>
     <string name="cache_log_menu_decrypt">Расшифровать/Зашифровать</string>
-    <string name="cache_log_menu_popup_title">Запись %s</string>
     <string name="ignore_confirm_title">Внимание</string>
     <string name="ignore_confirm_message">Игнорирование тайника означает, что этот тайник не будет загружаться с geocaching.com. Вы сможете его увидеть, только удалив игнорирование на сайте.</string>
     <string name="cache_status">Статус</string>
@@ -1172,17 +1168,7 @@
     <string name="map_rotation">Вращение карты</string>
     <string name="map_dot_mode">Маленькие иконки</string>
     <string name="map_show_circles">Показать круги</string>
-    <string name="map_showc_ownfound">Свои/найденные тайники</string>
-    <string name="map_showc_disabled">Тайники вне игры</string>
-    <string name="map_showc_archived">Архивные тайники</string>
-    <string name="map_showwp_original">Оригинальные точки</string>
-    <string name="map_showwp_parking">Точки парковки</string>
-    <string name="map_showwp_visited">Посещенные точки</string>
     <string name="map_show_track">Показать GPX трек/маршрут</string>
-    <string name="init_renderthemefolder_synctolocal">Синхронизировать темы в защищенную папку приложения</string>
-    <string name="init_summary_renderthemefolder_synctolocal">Эта опция может улучшить производительность открытия карты за счет свободного места на вашем устройстве.</string>
-    <string name="init_renderthemefolder_synctolocal_dialog_title">Включить синхронизацию папок темы</string>
-    <string name="init_renderthemefolder_synctolocal_dialog_message">Эта опция постоянно синхронизирует содержимое папки Map Theme в защищенную папку приложения для более быстрого доступа к файлам.\n\nПапка с темами кары \'%s\' имеет в настоящее время %s, %s и занимает %s.\n\nВключить синхронизацию папок?</string>
     <string name="init_hidewp">Скрыть точки</string>
     <string name="init_summary_hidewp_original">Скрыть оригинальные точки на карте</string>
     <string name="init_summary_hidewp_parking">Скрыть точки парковки на карте</string>
@@ -1198,7 +1184,6 @@
     <string name="map_gm_autorotation_disable">Отключить автоповорот карты?\n\nВы можете включить его снова с помощью меню поворота карты</string>
     <string name="quick_settings">Быстрые настройки</string>
     <string name="quick_settings_info">Некоторые настройки карты (настройки карты, скрытие, навигация) были перемещены в новое окно \"Быстрые настройки\"\nВы можете открыть это окно, используя иконку по центру внизу карты.</string>
-    <string name="map_show_in_map">Показать на карте:</string>
     <!-- search -->
     <string name="search_bar_desc">Тайники (геокод, название), код трекабла</string>
     <string name="search_coordinates">Координаты</string>
@@ -1788,11 +1773,6 @@
     <string name="switch_default">(по умолчанию)</string>
     <string name="yes">Да</string>
     <string name="no">Нет</string>
-    <string name="show_all">Показать все</string>
-    <string name="routingmode_straight">Напрямую</string>
-    <string name="routingmode_walk">Пешком</string>
-    <string name="routingmode_bike">На велосипеде</string>
-    <string name="routingmode_car">На авто</string>
     <!-- view settings -->
     <string name="view_settings">Настройки просмотра</string>
     <string name="delete_setting">Удалить настройку</string>
@@ -1821,7 +1801,6 @@
     <string name="downloadmanager_not_available">Файл карты не может быть загружен, менеджер загрузки не доступен</string>
     <string name="download_started">Загрузка началась в фоновом режиме</string>
     <string name="downloadmap_available_updates">Доступные обновления</string>
-    <string name="downloadmap_directory">папка</string>
     <string name="downloadmap_mapfile">файл карты</string>
     <!-- history track -->
     <string name="map_clear_trailhistory">Очистить историю трека</string>
@@ -1838,13 +1817,6 @@
     <string name="export_individualroute_success">Экспортирован индивидуальный маршрут в \"%s\"</string>
     <!-- install wizard -->
     <string name="wizard_welcome_title">Добро пожаловать в c:geo</string>
-    <string name="wizard_basefolder_request_explanation">c:geo необходима локальная папка для сохранения таких данных как GPX файлы, резервные копии, заметки и логи. По умолчанию эти файлы сохраняются в подпапках так называемой \"основной\" папки. Сейчас вам нужно выбрать или создать такую папку.\n\nЕсли вы обновились с прошлой версии, выберите существующую папку \"cgeo\" в корне устройства.\nПодсказка: возможно, вам понадобится выбрать внутренний носитель на следующем диалоге.</string>
-    <string name="wizard_mapfolder_request_explanation">c:geo нужна локальная папка для хранения оффлайн карт. Выберите или создайте такую папку на следующем шаге.</string>
-    <string name="wizard_mapthemesfolder_request_explanation">c:geo нужна локальная папка для хранения тем оффлайновых карт. Выберите или создайте такую папку на следующем шаге.</string>
-    <string name="wizard_gpxfolder_request_explanation">c:geo нужна локальная папка для хранения GPX файлов (например, для импорта/экспорта тайников или треков). Выберите или создайте такую папку на следующем шаге.</string>
     <string name="wizard_advanced_offlinemaps_label">Оффлайновые карты</string>
     <string name="wizard_advanced_restore_info">Если у вас есть резервная копия от предыдущей установки, вы можете восстановить настройки и/или тексты тайников.</string>
-    <string name="wizard_status_basefolder">\"Основная\" папка</string>
-    <!-- Map Theme helper -->
-    <!-- default actions in dialogs -->
 </resources>
