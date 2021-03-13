@@ -32,6 +32,7 @@ import cgeo.geocaching.export.PersonalNoteExport;
 import cgeo.geocaching.files.GPXImporter;
 import cgeo.geocaching.filter.FilterActivity;
 import cgeo.geocaching.filter.IFilter;
+import cgeo.geocaching.filters.AdvancedFilterActivity;
 import cgeo.geocaching.list.AbstractList;
 import cgeo.geocaching.list.ListNameMemento;
 import cgeo.geocaching.list.PseudoList;
@@ -164,6 +165,21 @@ public class CacheListActivity extends AbstractListActivity implements FilteredA
     private long detailProgressTime = 0L;
     private int listId = StoredList.TEMPORARY_LIST.id; // Only meaningful for the OFFLINE type
     private int markerId = EmojiUtils.NO_EMOJI;
+
+    /**
+     * Action bar spinner adapter. {@code null} for list types that don't allow switching (search results, ...).
+     */
+    CacheListSpinnerAdapter mCacheListSpinnerAdapter;
+
+    /**
+     * remember current filter when switching between lists, so it can be re-applied afterwards
+     */
+    private IFilter currentFilter = null;
+    private String currentAdvancedFilter = null;
+    private boolean currentInverseSort = false;
+
+    private SortActionProvider sortProvider;
+    
     private final GeoDirHandler geoDirHandler = new GeoDirHandler() {
 
         @Override
@@ -544,19 +560,6 @@ public class CacheListActivity extends AbstractListActivity implements FilteredA
         savedInstanceState.putInt(STATE_MARKER_ID, markerId);
     }
 
-    /**
-     * Action bar spinner adapter. {@code null} for list types that don't allow switching (search results, ...).
-     */
-    CacheListSpinnerAdapter mCacheListSpinnerAdapter;
-
-    /**
-     * remember current filter when switching between lists, so it can be re-applied afterwards
-     */
-    private IFilter currentFilter = null;
-    private boolean currentInverseSort = false;
-
-    private SortActionProvider sortProvider;
-
     private void initActionBarSpinner() {
         mCacheListSpinnerAdapter = new CacheListSpinnerAdapter(this, R.layout.support_simple_spinner_dropdown_item);
         final ActionBar actionBar = getSupportActionBar();
@@ -882,6 +885,8 @@ public class CacheListActivity extends AbstractListActivity implements FilteredA
             invalidateOptionsMenuCompatible();
         } else if (menuItem == R.id.menu_filter) {
             showFilterMenu(null);
+        } else if (menuItem == R.id.menu_filter_advanced) {
+            showAdvancedFilterMenu();
         } else if (menuItem == R.id.menu_import_web) {
             importWeb();
         } else if (menuItem == R.id.menu_export_gpx) {
@@ -994,6 +999,10 @@ public class CacheListActivity extends AbstractListActivity implements FilteredA
         } else {
             FilterActivity.selectFilter(this);
         }
+    }
+
+    public void showAdvancedFilterMenu() {
+        AdvancedFilterActivity.selectFilter(this);
     }
 
     private void setComparator(final CacheComparator comparator) {
@@ -1160,9 +1169,12 @@ public class CacheListActivity extends AbstractListActivity implements FilteredA
         return adapter.findCacheByGeocode(contextMenuGeocode);
     }
 
-    private void setFilter(final IFilter filter) {
+    private void setFilter(final IFilter filter, final String advancedFilter) {
         currentFilter = filter;
-        adapter.setFilter(filter);
+
+        currentAdvancedFilter = advancedFilter;
+
+        adapter.setFilter(currentFilter, currentAdvancedFilter);
         prepareFilterBar();
         updateTitle();
         invalidateOptionsMenuCompatible();
@@ -1183,7 +1195,7 @@ public class CacheListActivity extends AbstractListActivity implements FilteredA
 
         adapter = new CacheListAdapter(this, cacheList, type);
         adapter.setStoredLists(Settings.showListsInCacheList() ? StoredList.UserInterface.getMenuLists(true, PseudoList.NEW_LIST.id) : null);
-        adapter.setFilter(currentFilter);
+        adapter.setFilter(currentFilter, currentAdvancedFilter);
 
         if (listFooter == null) {
             listFooter = getLayoutInflater().inflate(R.layout.cacheslist_footer, listView, false);
@@ -1272,7 +1284,9 @@ public class CacheListActivity extends AbstractListActivity implements FilteredA
             }
         } else if (requestCode == FilterActivity.REQUEST_SELECT_FILTER && resultCode == Activity.RESULT_OK) {
             final int[] filterIndex = data.getIntArrayExtra(FilterActivity.EXTRA_FILTER_RESULT);
-            setFilter(FilterActivity.getFilterFromPosition(filterIndex[0], filterIndex[1]));
+            setFilter(FilterActivity.getFilterFromPosition(filterIndex[0], filterIndex[1]), currentAdvancedFilter);
+        } else if (requestCode == AdvancedFilterActivity.REQUEST_SELECT_FILTER && resultCode == Activity.RESULT_OK) {
+            setFilter(currentFilter,  data.getStringExtra(AdvancedFilterActivity.EXTRA_FILTER_RESULT));
         }
 
         if (type == CacheListType.OFFLINE) {
