@@ -6,8 +6,7 @@
 package cgeo.geocaching.brouter.mapaccess;
 
 
-final class NodesList
-{
-  public OsmNode node;
-  public NodesList next;
+final class NodesList {
+    public OsmNode node;
+    public NodesList next;
 }

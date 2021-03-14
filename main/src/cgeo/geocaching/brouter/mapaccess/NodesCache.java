@@ -14,30 +14,23 @@ import cgeo.geocaching.brouter.codec.DataBuffers;
 import cgeo.geocaching.brouter.codec.MicroCache;
 import cgeo.geocaching.brouter.codec.WaypointMatcher;
 import cgeo.geocaching.brouter.expressions.BExpressionContextWay;
-import cgeo.geocaching.storage.Folder;
 
 public final class NodesCache {
-    private File segmentDir;
-
     public OsmNodesMap nodesMap;
-    private BExpressionContextWay expCtxWay;
-    private int lookupVersion;
-    private int lookupMinorVersion;
-    private String currentFileName;
-
-    private HashMap<String, PhysicalFile> fileCache;
-    private DataBuffers dataBuffers;
-
-    private OsmFile[][] fileRows;
-
     public WaypointMatcher waypointMatcher;
-
     public boolean first_file_access_failed = false;
     public String first_file_access_name;
-
+    private final File segmentDir;
+    private final BExpressionContextWay expCtxWay;
+    private final int lookupVersion;
+    private final int lookupMinorVersion;
+    private String currentFileName;
+    private final HashMap<String, PhysicalFile> fileCache;
+    private final DataBuffers dataBuffers;
+    private final OsmFile[][] fileRows;
     private long cacheSum = 0;
     private long maxmemtiles;
-    private boolean detailed;
+    private final boolean detailed;
 
     private boolean garbageCollectionEnabled = false;
     private boolean ghostCleaningDone = false;
@@ -47,15 +40,11 @@ public final class NodesCache {
     private long ghostSum = 0;
     private long ghostWakeup = 0;
 
-    private boolean directWeaving = !Boolean.getBoolean("disableDirectWeaving");
-
-    public String formatStatus() {
-        return "collecting=" + garbageCollectionEnabled + " noGhosts=" + ghostCleaningDone + " cacheSum=" + cacheSum + " cacheSumClean=" + cacheSumClean + " ghostSum=" + ghostSum + " ghostWakeup=" + ghostWakeup;
-    }
+    private final boolean directWeaving = !Boolean.getBoolean("disableDirectWeaving");
 
     public NodesCache(String segmentDir, BExpressionContextWay ctxWay, long maxmem, NodesCache oldCache, boolean detailed) {
         this.maxmemtiles = maxmem / 8;
-        this.segmentDir = new File( segmentDir );
+        this.segmentDir = new File(segmentDir);
         this.nodesMap = new OsmNodesMap();
         this.nodesMap.maxmem = (2L * maxmem) / 3L;
         this.expCtxWay = ctxWay;
@@ -98,6 +87,10 @@ public final class NodesCache {
             dataBuffers = new DataBuffers();
         }
         ghostSum = cacheSum;
+    }
+
+    public String formatStatus() {
+        return "collecting=" + garbageCollectionEnabled + " noGhosts=" + ghostCleaningDone + " cacheSum=" + cacheSum + " cacheSumClean=" + cacheSumClean + " ghostSum=" + ghostSum + " ghostWakeup=" + ghostWakeup;
     }
 
     public void clean(boolean all) {

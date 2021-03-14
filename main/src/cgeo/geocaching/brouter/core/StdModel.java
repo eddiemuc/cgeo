@@ -12,29 +12,24 @@ import cgeo.geocaching.brouter.expressions.BExpressionContextNode;
 import cgeo.geocaching.brouter.expressions.BExpressionContextWay;
 
 
-final class StdModel extends OsmPathModel
-{
-  public OsmPrePath createPrePath()
-  {
-    return null;
-  }
+final class StdModel extends OsmPathModel {
+    protected BExpressionContextWay ctxWay;
+    protected BExpressionContextNode ctxNode;
 
-  public OsmPath createPath()
-  {
-    return new StdPath();
-  }
+    public OsmPrePath createPrePath() {
+        return null;
+    }
 
-  protected BExpressionContextWay ctxWay;
-  protected BExpressionContextNode ctxNode;
+    public OsmPath createPath() {
+        return new StdPath();
+    }
 
+    @Override
+    public void init(BExpressionContextWay expctxWay, BExpressionContextNode expctxNode, Map<String, String> keyValues) {
+        ctxWay = expctxWay;
+        ctxNode = expctxNode;
 
-  @Override
-  public void init( BExpressionContextWay expctxWay, BExpressionContextNode expctxNode, Map<String,String> keyValues )
-  {
-    ctxWay = expctxWay;
-    ctxNode = expctxNode;
+        BExpressionContext expctxGlobal = expctxWay; // just one of them...
 
-    BExpressionContext expctxGlobal = expctxWay; // just one of them...
-
-  }
+    }
 }

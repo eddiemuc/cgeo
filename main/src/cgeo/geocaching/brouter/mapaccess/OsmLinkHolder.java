@@ -5,9 +5,8 @@
  */
 package cgeo.geocaching.brouter.mapaccess;
 
-public interface OsmLinkHolder
-{
-  void setNextForLink( OsmLinkHolder holder );
+public interface OsmLinkHolder {
+    OsmLinkHolder getNextForLink();
 
-  OsmLinkHolder getNextForLink();
+    void setNextForLink(OsmLinkHolder holder);
 }

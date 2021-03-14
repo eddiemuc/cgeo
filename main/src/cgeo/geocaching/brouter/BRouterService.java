@@ -1,10 +1,5 @@
 package cgeo.geocaching.brouter;
 
-import cgeo.geocaching.storage.Folder;
-import cgeo.geocaching.storage.PersistableFolder;
-import cgeo.geocaching.utils.Log;
-import static cgeo.geocaching.settings.Settings.getExternalPrivateCgeoDirectory;
-
 import android.app.Service;
 import android.content.Intent;
 import android.os.Bundle;
@@ -13,13 +8,9 @@ import android.os.IBinder;
 
 import java.util.ArrayList;
 
-public class BRouterService extends Service {
+import cgeo.geocaching.utils.Log;
 
-    @Override
-    public IBinder onBind(final Intent arg0) {
-        Log.d(getClass().getSimpleName() + "onBind()");
-        return myBRouterServiceStub;
-    }
+public class BRouterService extends Service {
 
     private final IBRouterService.Stub myBRouterServiceStub = new IBRouterService.Stub() {
         @Override
@@ -61,6 +52,12 @@ public class BRouterService extends Service {
         }
 
     };
+
+    @Override
+    public IBinder onBind(final Intent arg0) {
+        Log.d(getClass().getSimpleName() + "onBind()");
+        return myBRouterServiceStub;
+    }
 
     @Override
     public void onCreate() {

@@ -11,11 +11,10 @@ import cgeo.geocaching.brouter.expressions.BExpressionContextNode;
 import cgeo.geocaching.brouter.expressions.BExpressionContextWay;
 
 
-abstract class OsmPathModel
-{
-  public abstract OsmPrePath createPrePath();
+abstract class OsmPathModel {
+    public abstract OsmPrePath createPrePath();
 
-  public abstract OsmPath createPath();
+    public abstract OsmPath createPath();
 
-  public abstract void init( BExpressionContextWay expctxWay, BExpressionContextNode expctxNode, Map<String,String> keyValues );
+    public abstract void init(BExpressionContextWay expctxWay, BExpressionContextNode expctxNode, Map<String, String> keyValues);
 }

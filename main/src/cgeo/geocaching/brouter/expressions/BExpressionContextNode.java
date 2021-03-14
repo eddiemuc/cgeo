@@ -7,32 +7,28 @@
 package cgeo.geocaching.brouter.expressions;
 
 
+public final class BExpressionContextNode extends BExpressionContext {
+    private static final String[] buildInVariables =
+        {"initialcost"};
 
-public final class BExpressionContextNode extends BExpressionContext
-{
-  private static String[] buildInVariables =
-	  { "initialcost" };
+    public BExpressionContextNode(BExpressionMetaData meta) {
+        super("node", meta);
+    }
 
-  protected String[] getBuildInVariableNames()
-  {
-    return buildInVariables;
-  }
+    /**
+     * Create an Expression-Context for way context
+     *
+     * @param hashSize size of hashmap for result caching
+     */
+    public BExpressionContextNode(int hashSize, BExpressionMetaData meta) {
+        super("node", hashSize, meta);
+    }
 
-  public float getInitialcost() { return getBuildInVariable(0); }
+    protected String[] getBuildInVariableNames() {
+        return buildInVariables;
+    }
 
-
-  public BExpressionContextNode( BExpressionMetaData meta )
-  {
-    super( "node", meta );
-  }
-
-  /**
-   * Create an Expression-Context for way context
-   *
-   * @param hashSize  size of hashmap for result caching
-   */
-  public BExpressionContextNode( int hashSize, BExpressionMetaData meta )
-  {
-    super( "node", hashSize, meta );
-  }
+    public float getInitialcost() {
+        return getBuildInVariable(0);
+    }
 }

@@ -1,19 +1,17 @@
 package cgeo.geocaching.brouter;
 
-import cgeo.geocaching.brouter.core.OsmNodeNamed;
-import cgeo.geocaching.brouter.core.OsmTrack;
-import cgeo.geocaching.brouter.core.RoutingContext;
-import cgeo.geocaching.brouter.core.RoutingEngine;
-import cgeo.geocaching.storage.Folder;
-import cgeo.geocaching.utils.Log;
-
 import android.os.Bundle;
 
 import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileWriter;
 import java.util.ArrayList;
 import java.util.List;
+
+import cgeo.geocaching.brouter.core.OsmNodeNamed;
+import cgeo.geocaching.brouter.core.OsmTrack;
+import cgeo.geocaching.brouter.core.RoutingContext;
+import cgeo.geocaching.brouter.core.RoutingEngine;
+import cgeo.geocaching.utils.Log;
 
 public class BRouterWorker {
     // public String baseDir;
