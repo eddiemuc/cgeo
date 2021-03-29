@@ -1,11 +1,9 @@
 package cgeo.geocaching.filters;
 
-import java.util.ArrayList;
-import java.util.List;
-
 public abstract class LogicalGeocacheFilter implements IGeocacheFilter {
 
-    private final List<IGeocacheFilter> children = new ArrayList<>();
+    private IGeocacheFilter childLeft = null;
+    private IGeocacheFilter childRight = null;
 
     @Override
     public void setConfig(final String value) {
@@ -18,12 +16,20 @@ public abstract class LogicalGeocacheFilter implements IGeocacheFilter {
     }
 
     @Override
-    public void addChild(final IGeocacheFilter child) {
-        children.add(child);
+    public void addChildren(final IGeocacheFilter left, final IGeocacheFilter right) {
+        this.childLeft = left;
+        this.childRight = right;
     }
 
     @Override
-    public List<IGeocacheFilter> getChildren() {
-        return children;
+    public IGeocacheFilter getChildLeft() {
+        return childLeft;
     }
+
+    @Override
+    public IGeocacheFilter getChildRight() {
+        return childRight;
+    }
+
+
 }

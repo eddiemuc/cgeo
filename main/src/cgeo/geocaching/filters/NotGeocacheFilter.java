@@ -5,7 +5,7 @@ import cgeo.geocaching.models.Geocache;
 public class NotGeocacheFilter extends AndGeocacheFilter {
 
     @Override
-    public String getTypeId() {
+    public String getId() {
         return "NOT";
     }
 

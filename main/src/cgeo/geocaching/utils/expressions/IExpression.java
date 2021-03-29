@@ -4,14 +4,30 @@ import java.util.List;
 
 public interface IExpression<T extends IExpression> {
 
-    String getTypeId();
+    enum ExpressionType { SIMPLE, OPERATOR_UNARY, OPERATOR_BINARY }
 
-    void setConfig(String value);
+    String getId();
+
+    void setConfig(String values);
 
     String getConfig();
 
-    void addChild(T child);
+    void addChildren(T left, T right);
 
-    List<T> getChildren();
+    T getChildLeft();
+
+    T getChildRight();
+
+    default ExpressionType getType() {
+        return ExpressionType.SIMPLE;
+    }
+
+    default int getOperatorBinaryPriority() {
+        return 10;
+    }
+
+    default boolean getOperatorBinaryOrderSensitive() {
+        return true;
+    }
 
 }

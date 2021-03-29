@@ -1,7 +1,5 @@
 package cgeo.geocaching.filters;
 
-import java.util.List;
-
 public abstract class AbstractGeocacheFilter implements IGeocacheFilter {
 
     private String typeId;
@@ -11,20 +9,24 @@ public abstract class AbstractGeocacheFilter implements IGeocacheFilter {
     }
 
     @Override
-    public String getTypeId() {
+    public String getId() {
         return typeId;
     }
 
-
     @Override
-    public void addChild(final IGeocacheFilter child) {
-        //no children
+    public void addChildren(final IGeocacheFilter left, final IGeocacheFilter right) {
 
     }
 
     @Override
-    public List<IGeocacheFilter> getChildren() {
-        //no children
+    public IGeocacheFilter getChildLeft() {
         return null;
     }
+
+    @Override
+    public IGeocacheFilter getChildRight() {
+        return null;
+    }
+
+
 }

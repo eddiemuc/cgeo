@@ -1,32 +1,51 @@
 package cgeo.geocaching.utils.expressions;
 
+import org.apache.commons.lang3.tuple.ImmutablePair;
+
 import cgeo.geocaching.utils.functions.Func2;
 import cgeo.geocaching.utils.functions.Func3;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class LambdaExpression<P, R> implements IExpression<LambdaExpression<P, R>> {
 
 
-    private final String typeId;
-    private final Func2<String, P, R> valueFunction;
-    private final Func3<String, P, List<R>, R> groupFunction;
+    private final String id;
+    private final ExpressionType expressionType;
+    private final Func2<String, P, R> simpleFunction;
+    private final Func3<String, P, R, R> unnaryFunction;
+    private final Func3<String, P, ImmutablePair<R, R>, R> binaryFunction;
+    private final int binaryOperatorPriority;
+    private final boolean binaryOperatorOrderSensitive;
 
-    private final List<LambdaExpression<P, R>> children = new ArrayList<>();
+    private LambdaExpression<P, R> childLeft;
+    private LambdaExpression<P, R> childRight;
 
     private String config;
 
-    public LambdaExpression(final String typeId, final Func2<String, P, R> function) {
-        this.typeId = typeId;
-        this.valueFunction = function;
-        this.groupFunction = null;
+    public static <P, R> LambdaExpression<P, R> createSimple(final String id, final Func2<String, P, R> function) {
+        return new LambdaExpression<>(id, ExpressionType.SIMPLE, function, null, null, -1, false);
     }
 
-    public LambdaExpression(final String typeId, final Func3<String, P, List<R>, R> function) {
-        this.typeId = typeId;
-        this.valueFunction = null;
-        this.groupFunction = function;
+    public static <P, R> LambdaExpression<P, R> createBinary(final String id, final Func3<String, P, ImmutablePair<R, R>, R> function) {
+        return createBinary(id, 10, true, function);
+    }
+
+    public static <P, R> LambdaExpression<P, R> createBinary(final String id, final int binaryOperatorPriority, final boolean binaryOperatorOrderSensitive, final Func3<String, P, ImmutablePair<R, R>, R> function) {
+        return new LambdaExpression<>(id, ExpressionType.OPERATOR_BINARY, null, null, function, binaryOperatorPriority, binaryOperatorOrderSensitive);
+    }
+
+    public static <P, R> LambdaExpression<P, R> createUnary(final String id, final Func3<String, P, R, R> function) {
+        return new LambdaExpression<>(id, ExpressionType.OPERATOR_UNARY, null, function, null, -1, false);
+    }
+
+    public LambdaExpression(final String id, final ExpressionType type, final Func2<String, P, R> funcSimple, final Func3<String, P, R, R> funcUnary, final Func3<String, P, ImmutablePair<R, R>, R> funcBinary,
+                            final int binaryOperatorPriority, final boolean binaryOperatorOrderSensitive) {
+        this.id = id;
+        this.simpleFunction = funcSimple;
+        this.binaryFunction = funcBinary;
+        this.unnaryFunction = funcUnary;
+        this.expressionType = type;
+        this.binaryOperatorPriority = binaryOperatorPriority;
+        this.binaryOperatorOrderSensitive = binaryOperatorOrderSensitive;
     }
 
     @Override
@@ -40,28 +59,50 @@ public class LambdaExpression<P, R> implements IExpression<LambdaExpression<P, R
     }
 
     @Override
-    public void addChild(final LambdaExpression<P, R> child) {
-        children.add(child);
+    public void addChildren(final LambdaExpression<P, R> left, final LambdaExpression<P, R> right) {
+        this.childLeft = left;
+        this.childRight = right;
     }
 
     @Override
-    public List<LambdaExpression<P, R>> getChildren() {
-        return children;
+    public LambdaExpression<P, R> getChildLeft() {
+        return childLeft;
     }
 
     @Override
-    public String getTypeId() {
-        return typeId;
+    public LambdaExpression<P, R> getChildRight() {
+        return childRight;
+    }
+
+    @Override
+    public String getId() {
+        return id;
+    }
+
+    @Override
+    public ExpressionType getType() {
+        return expressionType;
+    }
+
+    @Override
+    public int getOperatorBinaryPriority() {
+        return binaryOperatorPriority;
+    }
+
+    @Override
+    public boolean getOperatorBinaryOrderSensitive() {
+        return binaryOperatorOrderSensitive;
     }
 
     public R call(final P param) {
-        if (valueFunction != null) {
-            return valueFunction.call(config, param);
+        if (simpleFunction != null) {
+            return simpleFunction.call(config, param);
         }
-        final List<R> result = new ArrayList<>();
-        for (LambdaExpression<P, R> child : getChildren()) {
-            result.add(child.call(param));
+        if (unnaryFunction != null) {
+            return unnaryFunction.call(config, param, childLeft.call(param));
         }
-        return groupFunction.call(getConfig(),  param, result);
+        return binaryFunction.call(getConfig(),  param, new ImmutablePair<>(childLeft.call(param), childRight.call(param)));
     }
+
+
 }
