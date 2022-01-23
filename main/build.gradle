@@ -146,10 +146,9 @@ android {
         main {
             manifest.srcFile 'AndroidManifest.xml'
             java.srcDirs = ['src', 'thirdparty', '../common/src'] // no need for annotation generated sources
-            res.srcDirs = ['res']
+            res.srcDirs = ['res', 'res.maplegends/elevate', 'res.maplegends/fzk', 'res.maplegends/fzk-outdoor']
             assets.srcDirs = ['assets']
             aidl.srcDirs = ['src'] // default src/main/aidl creates package name conflicts in Eclipse
-            jni.srcDirs = []
         }
         // local unit tests, which can be executed without a device
         test {
@@ -190,6 +189,10 @@ android {
 
         // ExtraTranslation - old translation will be deleted by the next crowdin import
         disable 'ExtraTranslation'
+
+        // analyze all dependency modules in parallel and produce a single report
+        // including issues from the app and all of its dependencies
+        checkDependencies true
     }
 
     packagingOptions {
@@ -284,7 +287,7 @@ dependencies {
     // Apache Commons
     implementation 'org.apache.commons:commons-collections4:4.4'
     implementation 'org.apache.commons:commons-compress:1.20'
-    implementation 'org.apache.commons:commons-lang3:3.11'
+    implementation 'org.apache.commons:commons-lang3:3.12.0'
     implementation 'org.apache.commons:commons-text:1.9'
 
     // commons-io 2.6 uses java.nio.file.Path - which is first contained in Android API26
@@ -294,8 +297,8 @@ dependencies {
 
     // License: Apache-2.0. https://github.com/k3b/k3b-geoHelper/
     // decode geo-uris and web-map-service-urls
-    implementation('com.github.k3b:k3b-geoHelper:1.1.9') {
-        // donot get transitive 'commons-io:commons-io:2.6' as c:geo uses 2.5 to be compatible with older android verions
+    implementation('com.github.k3b:k3b-geoHelper:1.1.10') {
+        // do not get transitive 'commons-io:commons-io:2.6' as c:geo uses 2.5 to be compatible with older android versions
         exclude group: 'commons-io', module: 'commons-io'
     }
 
@@ -306,7 +309,7 @@ dependencies {
 
     // SpotBugs (successor of FindBugs)
     implementation 'net.jcip:jcip-annotations:1.0'
-    implementation 'com.github.spotbugs:spotbugs-annotations:4.4.2'
+    implementation 'com.github.spotbugs:spotbugs-annotations:4.5.2'
 
     // GeographicLib
     implementation 'net.sf.geographiclib:GeographicLib-Java:1.52'
@@ -318,7 +321,7 @@ dependencies {
     implementation "com.fasterxml.jackson.core:jackson-annotations:$jacksonVersion"
 
     // Jsoup HTML parsing
-    implementation 'org.jsoup:jsoup:1.13.1'
+    implementation 'org.jsoup:jsoup:1.14.3'
 
     // Junit only needed for local unit tests
     testImplementation 'junit:junit:4.13.2'
@@ -332,16 +335,16 @@ dependencies {
     implementation "com.asamm:locus-api-android:0.9.32"
 
     // Mapsforge official version
-    //def mapsforgeSource = 'org.mapsforge'
-    //def mapsforgeVersion = '0.16.0'
+    def mapsforgeSource = 'org.mapsforge'
+    def mapsforgeVersion = '0.17.0'
 
     // Mapsforge Snapshot from official master branch (via https://jitpack.io/#mapsforge/mapsforge)
     //def mapsforgeSource = 'com.github.mapsforge.mapsforge'
     //def mapsforgeVersion = '905e9d48bb' // master as of 31.3.21
 
     // Mapsforge Snapshot from cgeo's GitHub repository (via https://jitpack.io/#cgeo/mapsforge)
-    def mapsforgeSource = 'com.github.cgeo.mapsforge'
-    def mapsforgeVersion = '91fa6e6254' // fix for #10128 + fix for #12145
+    // def mapsforgeSource = 'com.github.cgeo.mapsforge'
+    // def mapsforgeVersion = '91fa6e6254' // fix for #10128 + fix for #12145
 
     implementation "$mapsforgeSource:mapsforge-core:$mapsforgeVersion"
     implementation "$mapsforgeSource:mapsforge-map:$mapsforgeVersion"
@@ -362,22 +365,22 @@ dependencies {
     // Metadata Extractor, EXIF location extraction from images
     implementation 'com.drewnoakes:metadata-extractor:2.16.0'
 
-    implementation 'com.squareup.okhttp3:okhttp:4.9.2'
+    implementation 'com.squareup.okhttp3:okhttp:4.9.3'
 
     // Play Services
-    implementation 'com.google.android.gms:play-services-location:18.0.0'
+    implementation 'com.google.android.gms:play-services-location:19.0.1'
     implementation 'com.google.android.gms:play-services-maps:17.0.1'
     // somehow there is a transitive play service dependency which we don't want
     configurations.all*.exclude module: "play-services-measurement"
 
     // Support Library Design
-    implementation 'com.google.android.material:material:1.4.0'
+    implementation 'com.google.android.material:material:1.5.0'
 
     // ProcessPhoenix, reliable process restart
     // implementation 'com.jakewharton:process-phoenix:2.0.0'
 
     // RxJava
-    implementation 'io.reactivex.rxjava3:rxjava:3.0.13'
+    implementation 'io.reactivex.rxjava3:rxjava:3.1.3'
     implementation "io.reactivex.rxjava3:rxandroid:3.0.0"
 
     // Support Library AppCompat
@@ -385,6 +388,9 @@ dependencies {
 
     // Support Library core (used for eg. HtmlCompat)
     implementation 'androidx.core:core:1.6.0'
+
+    // Support Library constraintlayout
+    implementation 'androidx.constraintlayout:constraintlayout:2.1.2'
 
     // Support Library ExifInterface
     implementation 'androidx.exifinterface:exifinterface:1.3.3'
@@ -394,6 +400,9 @@ dependencies {
 
     // Support Library RecyclerView
     implementation 'androidx.recyclerview:recyclerview:1.2.1'
+
+    // Settings Library
+    implementation 'androidx.preference:preference:1.1.1'
 
     // Support Annotations. use same version for the main app and the test app
     def annotationVersion = '1.3.0'
@@ -611,7 +620,9 @@ tasks.whenTaskAdded { theTask ->
 apply plugin: 'checkstyle'
 
 checkstyle {
-    // assign the checkstyle version explicitly here and in .idea/checkstyle-idea.xml
+    // assign the checkstyle version explicitly here
+    // and in AndroidStudio Settings (.idea/checkstyle-idea.xml)
+    // and align it with codacy (https://github.com/codacy/codacy-checkstyle)
     toolVersion = '8.44'
 
     configDirectory = rootProject.projectDir
@@ -631,5 +642,5 @@ tasks.register('checkstyle', Checkstyle) {
 }
 
 tasks.named('check') {
-    dependsOn tasks.named('checkstyle')
+    mustRunAfter tasks.named('checkstyle')
 }
