@@ -225,6 +225,10 @@ android {
         // rxjava
         exclude 'META-INF/rxandroid.properties'
         exclude 'META-INF/rxjava.properties'
+
+        // vtm-themes
+        resources.pickFirsts.add("assets/symbols/**")
+        resources.pickFirsts.add("assets/patterns/**")
     }
 
     flavorDimensions "javaCompilerTime" // all flavours must be assigned a dimension
@@ -287,7 +291,10 @@ dependencies {
     // Apache Commons
     implementation 'org.apache.commons:commons-collections4:4.4'
     implementation 'org.apache.commons:commons-compress:1.20'
-    implementation 'org.apache.commons:commons-lang3:3.12.0'
+    // commons-lang3 3.12.0 uses StringJoiner which is first contained in Android API24
+    // See https://github.com/cgeo/cgeo/issues/12577
+    //noinspection GradleDependency
+    implementation 'org.apache.commons:commons-lang3:3.11'
     implementation 'org.apache.commons:commons-text:1.9'
 
     // commons-io 2.6 uses java.nio.file.Path - which is first contained in Android API26
@@ -297,7 +304,7 @@ dependencies {
 
     // License: Apache-2.0. https://github.com/k3b/k3b-geoHelper/
     // decode geo-uris and web-map-service-urls
-    implementation('com.github.k3b:k3b-geoHelper:1.1.10') {
+    implementation('com.github.k3b:k3b-geoHelper:v1.1.11') {
         // do not get transitive 'commons-io:commons-io:2.6' as c:geo uses 2.5 to be compatible with older android versions
         exclude group: 'commons-io', module: 'commons-io'
     }
@@ -309,7 +316,7 @@ dependencies {
 
     // SpotBugs (successor of FindBugs)
     implementation 'net.jcip:jcip-annotations:1.0'
-    implementation 'com.github.spotbugs:spotbugs-annotations:4.5.2'
+    implementation 'com.github.spotbugs:spotbugs-annotations:4.5.3'
 
     // GeographicLib
     implementation 'net.sf.geographiclib:GeographicLib-Java:1.52'
@@ -321,13 +328,13 @@ dependencies {
     implementation "com.fasterxml.jackson.core:jackson-annotations:$jacksonVersion"
 
     // Jsoup HTML parsing
-    implementation 'org.jsoup:jsoup:1.14.3'
+    implementation 'org.jsoup:jsoup:1.15.1'
 
     // Junit only needed for local unit tests
     testImplementation 'junit:junit:4.13.2'
 
     // Leak Canary, memory leak detection
-    def leakCanaryVersion = '2.7'
+    def leakCanaryVersion = '2.8.1'
     debugImplementation "com.squareup.leakcanary:leakcanary-android:$leakCanaryVersion"
     implementation "com.squareup.leakcanary:plumber-android:$leakCanaryVersion"
 
@@ -352,6 +359,23 @@ dependencies {
     implementation "$mapsforgeSource:mapsforge-map-reader:$mapsforgeVersion"
     implementation "$mapsforgeSource:mapsforge-themes:$mapsforgeVersion"
 
+    // Mapsforge VTM implementation
+    def mapsforgeVTMSource = 'org.mapsforge';
+    def mapsforgeVTMVersion = '0.17.0';
+
+    implementation "$mapsforgeVTMSource:vtm:$mapsforgeVTMVersion"
+    implementation "$mapsforgeVTMSource:vtm-themes:$mapsforgeVTMVersion"
+    implementation "$mapsforgeVTMSource:vtm-jts:$mapsforgeVTMVersion"
+    implementation "org.locationtech.jts:jts-core:1.16.1"
+
+    implementation "$mapsforgeVTMSource:vtm-android:$mapsforgeVTMVersion"
+    implementation "$mapsforgeVTMSource:vtm-android:$mapsforgeVTMVersion:natives-armeabi-v7a"
+    implementation "$mapsforgeVTMSource:vtm-android:$mapsforgeVTMVersion:natives-arm64-v8a"
+    implementation "$mapsforgeVTMSource:vtm-android:$mapsforgeVTMVersion:natives-x86"
+    implementation "$mapsforgeVTMSource:vtm-android:$mapsforgeVTMVersion:natives-x86_64"
+
+    implementation "$mapsforgeVTMSource:vtm-http:$mapsforgeVTMVersion"
+
     configurations {
         all*.exclude group: 'net.sf.kxml', module: 'kxml2' // duplicate XmlPullParser class
     }
@@ -365,7 +389,10 @@ dependencies {
     // Metadata Extractor, EXIF location extraction from images
     implementation 'com.drewnoakes:metadata-extractor:2.16.0'
 
-    implementation 'com.squareup.okhttp3:okhttp:4.9.3'
+    def okhttpVersion = '4.9.3'
+    implementation "com.squareup.okhttp3:okhttp:$okhttpVersion"
+    // For local unit tests
+    testImplementation "com.squareup.okhttp3:mockwebserver:$okhttpVersion"
 
     // Play Services
     implementation 'com.google.android.gms:play-services-location:19.0.1'
@@ -380,7 +407,7 @@ dependencies {
     // implementation 'com.jakewharton:process-phoenix:2.0.0'
 
     // RxJava
-    implementation 'io.reactivex.rxjava3:rxjava:3.1.3'
+    implementation 'io.reactivex.rxjava3:rxjava:3.1.4'
     implementation "io.reactivex.rxjava3:rxandroid:3.0.0"
 
     // Support Library AppCompat
@@ -390,7 +417,7 @@ dependencies {
     implementation 'androidx.core:core:1.6.0'
 
     // Support Library constraintlayout
-    implementation 'androidx.constraintlayout:constraintlayout:2.1.2'
+    implementation 'androidx.constraintlayout:constraintlayout:2.1.3'
 
     // Support Library ExifInterface
     implementation 'androidx.exifinterface:exifinterface:1.3.3'
@@ -424,6 +451,10 @@ dependencies {
 
     // MarkDown view
     implementation 'io.noties.markwon:core:4.6.2'
+
+    // Loupe for ImageGallery and zoomable ImageViews
+    implementation 'io.github.igreenwood.loupe:loupe:1.2.2'
+    //implementation 'io.github.igreenwood.loupe:extensions:1.0.1' //as of now not needed
 }
 
 // un-mocking of Android classes that don't depend on the Android device, but are portable Java only, like SparseArray
