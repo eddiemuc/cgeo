@@ -26,6 +26,7 @@ import cgeo.geocaching.connector.trackable.TrackableConnector;
 import cgeo.geocaching.databinding.CachedetailDescriptionPageBinding;
 import cgeo.geocaching.databinding.CachedetailDetailsPageBinding;
 import cgeo.geocaching.databinding.CachedetailImagegalleryPageBinding;
+import cgeo.geocaching.databinding.CachedetailImagegalleryfragmentPageBinding;
 import cgeo.geocaching.databinding.CachedetailImagesPageBinding;
 import cgeo.geocaching.databinding.CachedetailInventoryPageBinding;
 import cgeo.geocaching.databinding.CachedetailWaypointsHeaderBinding;
@@ -172,6 +173,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 
+import com.google.samples.gridtopager.fragment.GridFragment;
 import io.reactivex.rxjava3.core.Observable;
 import io.reactivex.rxjava3.disposables.CompositeDisposable;
 import io.reactivex.rxjava3.functions.Function;
@@ -1006,6 +1008,7 @@ public class CacheDetailActivity extends TabbedViewPagerActivity
         INVENTORY(R.string.cache_inventory),
         IMAGES(R.string.cache_images),
         IMAGEGALLERY(R.string.cache_images),
+        IMAGEGALLERYFRAGMENT(R.string.cache_images),
         VARIABLES(R.string.cache_variables),
         ;
 
@@ -2364,6 +2367,42 @@ public class CacheDetailActivity extends TabbedViewPagerActivity
         }
     }
 
+    public static class ImageGalleryFragmentCreator extends TabbedViewPagerFragment<CachedetailImagegalleryfragmentPageBinding> {
+
+        @Override
+        public CachedetailImagegalleryfragmentPageBinding createView(@NonNull final LayoutInflater inflater, final ViewGroup container, final Bundle savedInstanceState) {
+            return CachedetailImagegalleryfragmentPageBinding.inflate(inflater, container, false);
+        }
+
+
+        @Override
+        public long getPageId() {
+            return Page.IMAGEGALLERYFRAGMENT.id;
+        }
+
+        @Override
+        public void setContent() {
+            // retrieve activity and cache - if either if this is null, something is really wrong...
+            final CacheDetailActivity activity = (CacheDetailActivity) getActivity();
+            if (activity == null) {
+                return;
+            }
+            final Geocache cache = activity.getCache();
+            if (cache == null) {
+                return;
+            }
+            binding.getRoot().setVisibility(View.VISIBLE);
+
+            FragmentManager fragmentManager = activity.getSupportFragmentManager();
+            fragmentManager
+                    .beginTransaction()
+                    .add(R.id.fragment_container, new GridFragment(), GridFragment.class.getSimpleName())
+                    .commit();
+
+
+        }
+    }
+
     public static void startActivity(final Context context, final String geocode, final String cacheName) {
         final Intent cachesIntent = new Intent(context, CacheDetailActivity.class);
         cachesIntent.putExtra(Intents.EXTRA_GEOCODE, geocode);
@@ -2614,7 +2653,9 @@ public class CacheDetailActivity extends TabbedViewPagerActivity
             if (this.imageGallery != null) {
                 title += " (" + this.imageGallery.getCount() + ")";
             }
-            return  title;
+            return title;
+        } else if (pageId == Page.IMAGEGALLERYFRAGMENT.id) {
+            return "gallery-test";
         }  else if (pageId == Page.LOGSFRIENDS.id) {
             final int logCount = cache == null ? 0 : cache.getFriendsLogs().size();
             return this.getString(Page.LOGSFRIENDS.titleStringId) + " (" + logCount + ")";
@@ -2641,6 +2682,7 @@ public class CacheDetailActivity extends TabbedViewPagerActivity
             }
             if (Settings.enableFeatureNewImageGallery()) {
                 pages.add(Page.IMAGEGALLERY.id);
+                pages.add(Page.IMAGEGALLERYFRAGMENT.id);
             }
             if (!Settings.enableFeatureNewImageGallery() && CollectionUtils.isNotEmpty(cache.getNonStaticImages())) {
                 pages.add(Page.IMAGES.id);
@@ -2673,6 +2715,8 @@ public class CacheDetailActivity extends TabbedViewPagerActivity
             return new ImagesViewCreator();
         } else if (pageId == Page.IMAGEGALLERY.id) {
             return new ImageGalleryCreator();
+        } else if (pageId == Page.IMAGEGALLERYFRAGMENT.id) {
+            return new ImageGalleryFragmentCreator();
         } else if (pageId == Page.VARIABLES.id) {
             return new VariablesViewPageFragment();
         }
