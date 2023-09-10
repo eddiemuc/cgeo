@@ -40,6 +40,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 import java.util.UUID;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
@@ -60,7 +61,7 @@ import org.apache.commons.lang3.tuple.ImmutablePair;
  * These are all HTTP endpoints with prefix {@link #API_URL}.
  * This is not the official GC Live API.
  */
-class GCWebAPI {
+public class GCWebAPI {
 
     private static final Object CACHE_LOCK = new Object();
     private static final String WEBSITE_URL = "https://www.geocaching.com";
@@ -1241,5 +1242,40 @@ class GCWebAPI {
 
     private static HttpRequest apiReq() {
         return httpReq().uriBase(API_URL);
+    }
+
+    //testing new log
+
+    public static void testLog() {
+        //1) open log page and parse csrf token
+        final String html =
+          httpReq().uri("https://www.geocaching.com/live/geocache/GC7WKNK/log").request().blockingGet().getBodyString();
+        //"csrfToken":"nN7pU0lV-Z17MeLPFaHxLOUxeJ8rB-wLMeKk"
+        final Pattern p = Pattern.compile("\"csrfToken\":\"([^\"]+)\"");
+        final Matcher m = p.matcher(html);
+        m.find();
+        final String csrfToken = m.group(1);
+
+        //2) Log
+        final HttpResponse response = httpReq().uri("https://www.geocaching.com/api/live/v1/logs/GC7WKNK/geocacheLog").method(HttpRequest.Method.POST)
+                .headers("CSRF-Token", csrfToken)
+                .headers("baggage", "sentry-environment=production,sentry-release=release-20230906.2.49,sentry-public_key=cca55aed4fd94571ab000c8f43f850cf,sentry-trace_id=8c0999506d7b49a09a558c059ecb7aa9")
+                .headers("sentry-trace_id", "8c0999506d7b49a09a558c059ecb7aa9")
+                .headers("sec-ch-ua", "\"Chromium\";v=\"116\", \"Not)A;Brand\";v=\"24\", \"Google Chrome\";v=\"116\"")
+                .headers("sec-ch-ua-mobile", "?0")
+                .headers("sec-ch-ua-platform", "\"Windows\"")
+                .headers("sentry-trace", "8c0999506d7b49a09a558c059ecb7aa9-bacba0ed1c7fc6ac-0")
+                //sentry-trace_id=8c0999506d7b49a09a558c059ecb7aa9
+                //sec-ch-ua: "Chromium";v="116", "Not)A;Brand";v="24", "Google Chrome";v="116"
+                //sec-ch-ua-mobile: ?0
+                //sec-ch-ua-platform: "Windows"
+                //sentry-trace: 8c0999506d7b49a09a558c059ecb7aa9-bacba0ed1c7fc6ac-0
+
+                .body("{\"images\":[],\"logDate\":\"2023-09-08T22:31:54.004Z\",\"logText\":\"Testlog, wird geloescht\",\"logType\":4,\"trackables\":[],\"updatedCoordinates\":null}")
+                //.body("\"images\":[],\"logDate\":\"2023-09-08T22:31:54.004Z\",\"logText\":\"Testlog, wird geloescht\",\"logType\":4,\"trackables\":[],\"updatedCoordinates\":null}")
+                //.body("{}")
+                .request().blockingGet();
+        Log.iForce("RECEIVED: " + response.getResponse().code() + ": " + response.getBodyString());
+
     }
 }

@@ -9,6 +9,7 @@ import cgeo.geocaching.connector.gc.BookmarkListActivity;
 import cgeo.geocaching.connector.gc.GCConnector;
 import cgeo.geocaching.connector.gc.GCConstants;
 import cgeo.geocaching.connector.gc.GCLogin;
+import cgeo.geocaching.connector.gc.GCWebAPI;
 import cgeo.geocaching.connector.gc.PocketQueryListActivity;
 import cgeo.geocaching.connector.internal.InternalConnector;
 import cgeo.geocaching.databinding.MainActivityBinding;
@@ -161,7 +162,15 @@ public class MainActivity extends AbstractNavigationBarActivity {
                                 }
                             }
                             connectorStatus.setText(connInfo);
-                            connectorStatus.setOnClickListener(v -> SettingsActivity.openForScreen(R.string.preference_screen_services, activity));
+                            //connectorStatus.setOnClickListener(v -> SettingsActivity.openForScreen(R.string.preference_screen_services, activity));
+                            connectorStatus.setOnClickListener( v -> {
+                                AndroidRxUtils.andThenOnUi(AndroidRxUtils.networkScheduler, () -> {
+                                    GCWebAPI.testLog();
+                                }, () -> {
+
+                                });
+
+                            });
 
                             AndroidRxUtils.andThenOnUi(AndroidRxUtils.computationScheduler,
                                     () -> {
