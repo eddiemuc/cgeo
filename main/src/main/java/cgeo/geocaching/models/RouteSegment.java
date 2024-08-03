@@ -1,6 +1,7 @@
 package cgeo.geocaching.models;
 
 import cgeo.geocaching.location.Geopoint;
+import cgeo.geocaching.maps.routing.Routing;
 
 import android.os.Parcel;
 import android.os.Parcelable;
@@ -13,18 +14,19 @@ public class RouteSegment implements Parcelable {
     private ArrayList<Geopoint> points;
     private ArrayList<Float> elevation;
     private boolean linkToPreviousSegment = true;
+    private final boolean routable;
 
-    public RouteSegment(final RouteItem item, final ArrayList<Geopoint> points, final boolean linkToPreviousSegment) {
+    public RouteSegment(final RouteItem item, final ArrayList<Geopoint> points, final boolean linkToPreviousSegment, final boolean routable) {
+        this(item, points, linkToPreviousSegment, routable, null);
+    }
+
+    public RouteSegment(final RouteItem item, final ArrayList<Geopoint> points, final boolean linkToPreviousSegment, final boolean routable, final ArrayList<Float> elevation) {
         this.item = item;
         distance = 0.0f;
         this.points = points;
-        this.elevation = null;
         this.linkToPreviousSegment = linkToPreviousSegment;
-    }
-
-    public RouteSegment(final RouteItem item, final ArrayList<Geopoint> points, final ArrayList<Float> elevation, final boolean linkToPreviousSegment) {
-        this(item, points, linkToPreviousSegment);
         this.elevation = elevation;
+        this.routable = routable;
     }
 
     public float calculateDistance() {
@@ -81,13 +83,28 @@ public class RouteSegment implements Parcelable {
         points.add(geopoint);
     }
 
-    public void resetPoints() {
+    public void recalculateRoute(final Geopoint fromPoint) {
+        if (!routable || item == null || item.getPoint() == null || fromPoint == null) {
+            return;
+        }
+        // clear info for current segment
+        resetPoints();
+        // calculate route for segment between current point and its predecessor
+        final ArrayList<Float> elevation = new ArrayList<>();
+        final Geopoint[] temp = Routing.getTrackNoCaching(fromPoint, item.getPoint(), elevation);
+        for (Geopoint geopoint : temp) {
+            addPoint(geopoint);
+        }
+        setElevation(elevation);
+    }
+
+    private void resetPoints() {
         points = new ArrayList<>();
         elevation = new ArrayList<>();
         distance = 0.0f;
     }
 
-    public void setElevation(final ArrayList<Float> elevation) {
+    private void setElevation(final ArrayList<Float> elevation) {
         this.elevation.clear();
         this.elevation.addAll(elevation);
     }
@@ -121,6 +138,8 @@ public class RouteSegment implements Parcelable {
         distance = parcel.readFloat();
         points = parcel.readArrayList(Geopoint.class.getClassLoader());
         elevation = parcel.readArrayList(Float.TYPE.getClassLoader());
+        routable = parcel.readInt() != 0;
+        linkToPreviousSegment = parcel.readInt() != 0;
     }
 
     @Override
@@ -134,6 +153,8 @@ public class RouteSegment implements Parcelable {
         dest.writeFloat(distance);
         dest.writeList(points);
         dest.writeList(elevation);
+        dest.writeInt(routable ? 1 : 0);
+        dest.writeInt(linkToPreviousSegment ? 1 : 0);
     }
 
 }

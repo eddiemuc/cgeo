@@ -38,12 +38,6 @@ abstract class AbstractTrackOrRouteParser {
         result = new Route();
     }
 
-    protected AbstractTrackOrRouteParser(final String namespaceIn, final String versionIn, final boolean routeable) {
-        namespace = namespaceIn;
-        version = versionIn;
-        result = new Route(routeable);
-    }
-
     interface RouteParse {
         Route parse(@NonNull InputStream stream) throws IOException, ParserException;
     }

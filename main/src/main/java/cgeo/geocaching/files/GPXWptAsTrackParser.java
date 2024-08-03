@@ -38,7 +38,7 @@ public class GPXWptAsTrackParser implements AbstractTrackOrRouteParser.RoutePars
     protected GPXWptAsTrackParser(final String namespaceIn, final String versionIn) {
         namespace = namespaceIn;
         version = versionIn;
-        result = new Route(false);
+        result = new Route();
     }
 
     @NonNull
@@ -50,7 +50,7 @@ public class GPXWptAsTrackParser implements AbstractTrackOrRouteParser.RoutePars
 
         root.setEndElementListener(() -> {
             if (temp.size() > 0) {
-                result.add(new RouteSegment(new RouteItem(temp.get(temp.size() - 1)), temp, false));
+                result.add(new RouteSegment(new RouteItem(temp.get(temp.size() - 1)), temp, false, false));
                 temp = null;
             }
         });

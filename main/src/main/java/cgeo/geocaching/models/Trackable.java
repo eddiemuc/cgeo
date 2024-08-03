@@ -24,7 +24,7 @@ import java.util.List;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 
-public class Trackable implements IGeoObject {
+public class Trackable {
     private static final int SPOTTED_UNSET = 0;
     public static final int SPOTTED_CACHE = 1;
     public static final int SPOTTED_USER = 2;
@@ -139,7 +139,6 @@ public class Trackable implements IGeoObject {
         this.guid = guid;
     }
 
-    @Override
     @NonNull
     public String getGeocode() {
         return geocode;
@@ -195,7 +194,6 @@ public class Trackable implements IGeoObject {
         this.iconUrl = iconUrl;
     }
 
-    @Override
     public String getName() {
         return name;
     }

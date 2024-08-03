@@ -6,4 +6,8 @@ public interface ICoordinates {
 
     Geopoint getCoords();
 
+    default float getElevation() {
+        return Float.NaN;
+    }
+
 }

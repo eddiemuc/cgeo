@@ -16,7 +16,7 @@ public class GPXIndividualRouteParser extends AbstractTrackOrRouteParser impleme
     private String tempName = "";
 
     protected GPXIndividualRouteParser(final String namespaceIn, final String versionIn) {
-        super(namespaceIn, versionIn, true);
+        super(namespaceIn, versionIn);
     }
 
     @NonNull
@@ -28,7 +28,7 @@ public class GPXIndividualRouteParser extends AbstractTrackOrRouteParser impleme
         point.getChild(namespace, "name").setEndTextElementListener(body -> tempName = body);
         point.setEndElementListener(() -> {
             if (temp.size() > 0) {
-                result.add(new RouteSegment(new RouteItem(tempName, temp.get(temp.size() - 1)), temp, true));
+                result.add(new RouteSegment(new RouteItem(tempName, temp.get(temp.size() - 1)), temp, true, true));
                 temp = new ArrayList<>();
             }
         });

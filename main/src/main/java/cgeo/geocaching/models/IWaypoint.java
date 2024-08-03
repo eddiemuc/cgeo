@@ -3,7 +3,9 @@ package cgeo.geocaching.models;
 import cgeo.geocaching.enumerations.CoordinatesType;
 import cgeo.geocaching.enumerations.WaypointType;
 
-public interface IWaypoint extends IGeoObject, ICoordinates {
+import androidx.annotation.Nullable;
+
+public interface IWaypoint extends IGeoObject {
 
     /**
      * Return an unique waypoint id.
@@ -16,4 +18,9 @@ public interface IWaypoint extends IGeoObject, ICoordinates {
 
     CoordinatesType getCoordType();
 
+    @Nullable
+    @Override
+    default String getName() {
+        return null;
+    }
 }

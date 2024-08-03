@@ -4,6 +4,8 @@ import cgeo.geocaching.log.LogType;
 
 import androidx.annotation.NonNull;
 
+import java.util.Locale;
+
 /**
  * adapter for terracaching log types
  */
@@ -15,14 +17,18 @@ public final class TerraCachingLogType {
 
     @NonNull
     public static LogType getLogType(@NonNull final String logtype) {
-        switch (logtype) {
-            case "Found it!":
+        if (logtype == null) {
+            return LogType.UNKNOWN;
+        }
+        switch (logtype.toLowerCase(Locale.US)) {
+            case "found it!":
+            case "find":
                 return LogType.FOUND_IT;
-            case "Missing?":
+            case "missing?":
                 return LogType.DIDNT_FIND_IT;
-            case "Note":
+            case "note":
                 return LogType.NOTE;
-            case "Repair Required":
+            case "repair required":
                 return LogType.NEEDS_MAINTENANCE;
         }
         return LogType.UNKNOWN;

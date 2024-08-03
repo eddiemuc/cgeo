@@ -30,7 +30,6 @@ public class IndividualRoute extends Route implements Parcelable {
     private SetTarget setTarget = null;
 
     public IndividualRoute(@Nullable final SetTarget setTarget) {
-        super(true);
         this.setTarget = setTarget;
     }
 
@@ -159,7 +158,7 @@ public class IndividualRoute extends Route implements Parcelable {
         }
         final int pos = (forceAdd ? -1 : pos(item));
         if (pos == -1) {
-            final RouteSegment segment = new RouteSegment(item, null, true);
+            final RouteSegment segment = new RouteSegment(item, null, true, true);
             if (segment.hasPoint()) {
                 if (addToRouteStart) {
                     segments.add(0, segment);

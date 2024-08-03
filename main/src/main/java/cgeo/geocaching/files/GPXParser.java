@@ -502,7 +502,7 @@ abstract class GPXParser extends FileParser {
             if (body.startsWith("Geocache|")) {
                 body = StringUtils.substringAfter(body, "Geocache|").trim();
             }
-            cache.setType(CacheType.getByPattern(body));
+            cache.setType(CacheType.getByGpxPattern(body));
         });
 
         // waypoint.cache.container

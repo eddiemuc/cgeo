@@ -18,12 +18,12 @@ public class CacheTypeTest {
     }
 
     @Test
-    public void testGetByPattern() {
-        assertThat(CacheType.getByPattern("")).isEqualTo(CacheType.UNKNOWN);
-        assertThat(CacheType.getByPattern(null)).isEqualTo(CacheType.UNKNOWN);
-        assertThat(CacheType.getByPattern("random garbage")).isEqualTo(CacheType.UNKNOWN);
-        assertThat(CacheType.getByPattern("cache in trash out event")).isEqualTo(CacheType.CITO);
-        assertThat(CacheType.getByPattern("Locationless (Reverse) Cache")).isEqualTo(CacheType.LOCATIONLESS);
+    public void testGetByGpxPattern() {
+        assertThat(CacheType.getByGpxPattern("")).isEqualTo(CacheType.UNKNOWN);
+        assertThat(CacheType.getByGpxPattern(null)).isEqualTo(CacheType.UNKNOWN);
+        assertThat(CacheType.getByGpxPattern("random garbage")).isEqualTo(CacheType.UNKNOWN);
+        assertThat(CacheType.getByGpxPattern("cache in trash out event")).isEqualTo(CacheType.CITO);
+        assertThat(CacheType.getByGpxPattern("Locationless (Reverse) Cache")).isEqualTo(CacheType.LOCATIONLESS);
     }
 
     @Test
@@ -36,11 +36,11 @@ public class CacheTypeTest {
     }
 
     @Test
-    public void testGetByPatternComplete() {
+    public void testGetByGpxPatternComplete() {
         for (final CacheType type : CacheType.values()) {
-            assertThat(CacheType.getByPattern(type.pattern)).isEqualTo(type);
-            assertThat(CacheType.getByPattern(type.pattern.toLowerCase(Locale.US))).isEqualTo(type);
-            assertThat(CacheType.getByPattern(type.pattern.toUpperCase(Locale.US))).isEqualTo(type);
+            assertThat(CacheType.getByGpxPattern(type.pattern)).isEqualTo(type);
+            assertThat(CacheType.getByGpxPattern(type.pattern.toLowerCase(Locale.US))).isEqualTo(type);
+            assertThat(CacheType.getByGpxPattern(type.pattern.toUpperCase(Locale.US))).isEqualTo(type);
         }
     }
 

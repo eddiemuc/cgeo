@@ -1,8 +1,8 @@
 package cgeo.geocaching.models;
 
+
 import cgeo.geocaching.location.Geopoint;
 import cgeo.geocaching.location.Viewport;
-import cgeo.geocaching.maps.routing.Routing;
 import cgeo.geocaching.models.geoitem.GeoGroup;
 import cgeo.geocaching.models.geoitem.GeoItem;
 import cgeo.geocaching.models.geoitem.GeoPrimitive;
@@ -11,23 +11,16 @@ import cgeo.geocaching.models.geoitem.IGeoItemSupplier;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import org.apache.commons.lang3.StringUtils;
+
 import java.util.ArrayList;
 import java.util.List;
 
 public class Route implements IGeoItemSupplier, Parcelable {
     private String name = "";
     protected ArrayList<RouteSegment> segments = new ArrayList<>();
-    private boolean routeable;
     protected float distance = 0.0f;
     protected boolean isHidden = false;
-
-    public Route() {
-        // should use setRouteable later if using this constructor
-    }
-
-    public Route(final boolean routeable) {
-        this.routeable = routeable;
-    }
 
     public interface CenterOnPosition {
         void centerOnPosition(double latitude, double longitude, Viewport viewport);
@@ -35,6 +28,10 @@ public class Route implements IGeoItemSupplier, Parcelable {
 
     public interface UpdateRoute {
         void updateRoute(IGeoItemSupplier route);
+    }
+
+    public Route() {
+        //empty on purpose
     }
 
     @Override
@@ -46,8 +43,15 @@ public class Route implements IGeoItemSupplier, Parcelable {
         this.name = name;
     }
 
-    public void setRouteable(final boolean routeable) {
-        this.routeable = routeable;
+    public void addName(final String name) {
+        if (StringUtils.isBlank(name)) {
+            return;
+        }
+        if (StringUtils.isBlank(this.name)) {
+            this.name = name;
+        } else {
+            this.name += "|" + name;
+        }
     }
 
     public String getName() {
@@ -162,32 +166,22 @@ public class Route implements IGeoItemSupplier, Parcelable {
 
     public void calculateNavigationRoute() {
         final int numSegments = getNumSegments();
-        if (routeable && numSegments > 0) {
-            for (int segment = 0; segment < numSegments; segment++) {
+        if (numSegments > 1) {
+            for (int segment = 1; segment < numSegments; segment++) {
                 calculateNavigationRoute(segment);
             }
         }
     }
 
     protected void calculateNavigationRoute(final int pos) {
-        if (routeable && segments != null && pos < segments.size()) {
-            final RouteSegment segment = segments.get(pos);
-            distance -= segment.getDistance();
-            if (routeable) {
-                // clear info for current segment
-                segment.resetPoints();
-                // calculate route for segment between current point and its predecessor
-                if (pos > 0) {
-                    final ArrayList<Float> elevation = new ArrayList<>();
-                    final Geopoint[] temp = Routing.getTrackNoCaching(segments.get(pos - 1).getPoint(), segment.getPoint(), elevation);
-                    for (Geopoint geopoint : temp) {
-                        segment.addPoint(geopoint);
-                    }
-                    segment.setElevation(elevation);
-                }
-            }
-            distance += segment.calculateDistance();
+        if (segments == null || pos <= 0 || pos >= segments.size()) {
+            return;
         }
+        final RouteSegment segment = segments.get(pos);
+        final Geopoint fromPoint = segments.get(pos - 1).getPoint();
+        distance -= segment.getDistance();
+        segment.recalculateRoute(fromPoint);
+        distance += segment.getDistance();
     }
 
     // Parcelable methods
@@ -209,7 +203,6 @@ public class Route implements IGeoItemSupplier, Parcelable {
     protected Route(final Parcel parcel) {
         name = parcel.readString();
         segments = parcel.readArrayList(RouteSegment.class.getClassLoader());
-        routeable = parcel.readInt() != 0;
         distance = parcel.readFloat();
         isHidden = parcel.readInt() != 0;
     }
@@ -223,7 +216,6 @@ public class Route implements IGeoItemSupplier, Parcelable {
     public void writeToParcel(final Parcel dest, final int flags) {
         dest.writeString(name);
         dest.writeList(segments);
-        dest.writeInt(routeable ? 1 : 0);
         dest.writeFloat(distance);
         dest.writeInt(isHidden ? 1 : 0);
     }

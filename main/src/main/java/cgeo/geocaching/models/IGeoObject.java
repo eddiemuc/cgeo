@@ -3,7 +3,7 @@ package cgeo.geocaching.models;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-public interface IGeoObject {
+public interface IGeoObject extends ICoordinates {
 
     /**
      * @return Geocode like GCxxxx

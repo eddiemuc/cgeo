@@ -125,12 +125,20 @@ public enum CacheType {
     }
 
     @NonNull
-    public static CacheType getByPattern(@Nullable final String pattern) {
-        final CacheType result = pattern != null ? FIND_BY_PATTERN.get(pattern.toLowerCase(Locale.US).trim()) : null;
-        if (result != null) {
-            return result;
+    public static CacheType getByGpxPattern(@Nullable final String gpxPattern) {
+        if (gpxPattern == null) {
+            return CacheType.UNKNOWN;
         }
-        return UNKNOWN;
+
+        String pattern = gpxPattern.toLowerCase(Locale.US).trim();
+        // some caches contain a prefix "GEocache|" in the type
+        final int idx = pattern.indexOf("|");
+        if (idx > 0) {
+            pattern = pattern.substring(idx + 1).trim();
+        }
+
+        final CacheType result = FIND_BY_PATTERN.get(pattern);
+        return result == null ? CacheType.UNKNOWN : result;
     }
 
     @NonNull
@@ -147,7 +155,7 @@ public enum CacheType {
         final CacheType result = typeNumber != null ? FIND_BY_WPT_TYPE.get(typeNumber) : null;
         if (result == null) {
             // earthcaches don't use their numeric ID on search result pages, but a literal "earthcache". therefore have a fallback
-            return getByPattern(typeNumber);
+            return getByGpxPattern(typeNumber);
         }
         return result;
     }
