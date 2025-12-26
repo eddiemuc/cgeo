@@ -19,6 +19,7 @@ import cgeo.geocaching.list.StoredList;
 import cgeo.geocaching.location.Geopoint;
 import cgeo.geocaching.location.Viewport;
 import cgeo.geocaching.location.WaypointDistanceInfo;
+import cgeo.geocaching.log.LoggingUI;
 import cgeo.geocaching.maps.MapOptions;
 import cgeo.geocaching.maps.MapSettingsUtils;
 import cgeo.geocaching.maps.MapStarUtils;
@@ -928,6 +929,16 @@ public class UnifiedMapActivity extends AbstractNavigationBarMapActivity impleme
 
         menu.findItem(R.id.menu_as_list).setVisible(true);
 
+        // log visit menu items - show when a target cache is set
+        final Geocache targetCache = getCurrentTargetCache();
+        if (targetCache != null) {
+            menu.findItem(R.id.menu_log_visit).setVisible(targetCache.supportsLogging() && !Settings.getLogOffline());
+            menu.findItem(R.id.menu_log_visit_offline).setVisible(targetCache.supportsLogging() && Settings.getLogOffline());
+        } else {
+            menu.findItem(R.id.menu_log_visit).setVisible(false);
+            menu.findItem(R.id.menu_log_visit_offline).setVisible(false);
+        }
+
         MenuUtils.tintToolbarAndOverflowIcons(menu);
 
         return result;
@@ -1021,6 +1032,11 @@ public class UnifiedMapActivity extends AbstractNavigationBarMapActivity impleme
             final Collection<Geocache> caches = viewModel.caches.readWithResult(vmCaches ->
                     mapFragment.getViewport().filter(vmCaches));
             CacheListActivity.startActivityMap(this, new SearchResult(caches));
+        } else if (id == R.id.menu_log_visit || id == R.id.menu_log_visit_offline) {
+            final Geocache targetCache = getCurrentTargetCache();
+            if (targetCache != null && LoggingUI.onMenuItemSelected(item, this, targetCache, null)) {
+                return true;
+            }
         } else if (id == R.id.menu_hillshading) {
             Settings.setMapShadingShowLayer(!Settings.getMapShadingShowLayer());
             item.setChecked(Settings.getMapShadingShowLayer());
