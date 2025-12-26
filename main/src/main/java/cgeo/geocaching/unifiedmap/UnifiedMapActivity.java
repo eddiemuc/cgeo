@@ -1034,8 +1034,8 @@ public class UnifiedMapActivity extends AbstractNavigationBarMapActivity impleme
             CacheListActivity.startActivityMap(this, new SearchResult(caches));
         } else if (id == R.id.menu_log_visit || id == R.id.menu_log_visit_offline) {
             final Geocache targetCache = getCurrentTargetCache();
-            if (targetCache != null && LoggingUI.onMenuItemSelected(item, this, targetCache, null)) {
-                return true;
+            if (targetCache != null) {
+                LoggingUI.onMenuItemSelected(item, this, targetCache, null);
             }
         } else if (id == R.id.menu_hillshading) {
             Settings.setMapShadingShowLayer(!Settings.getMapShadingShowLayer());
