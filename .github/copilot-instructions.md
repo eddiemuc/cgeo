@@ -64,13 +64,13 @@ To check quality of source code, use code inspection instead. Do not attempt to 
 ./gradlew connectedAndroidTest
 ```
 
-As of now, Copilot Agents should not attempt to execute gradle commands for this repository.
+As of now, Copilot Agents should build the debug variant and run unit tests.  Copilot Agents shall NOT attempt to run instrumented tests though, this will fail.
 
 ### API Keys Configuration
 
 The app requires API keys for full functionality. However, those are not available to copilot
-as of now. They are not required for compiling and executing unit tests. They are necessary
-for some instrumented tests though, so if you execute them without keys then some will fail.
+as of now. They are not required for building the source and executing unit tests. They are necessary
+to run instrumented tests though; if you execute them without keys then many will fail.
 
 ### Testing Guidelines
 
