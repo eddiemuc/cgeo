@@ -19,6 +19,7 @@ import cgeo.geocaching.list.StoredList;
 import cgeo.geocaching.location.Geopoint;
 import cgeo.geocaching.location.Viewport;
 import cgeo.geocaching.location.WaypointDistanceInfo;
+import cgeo.geocaching.log.LoggingUI;
 import cgeo.geocaching.maps.MapOptions;
 import cgeo.geocaching.maps.MapSettingsUtils;
 import cgeo.geocaching.maps.MapStarUtils;
@@ -928,6 +929,10 @@ public class UnifiedMapActivity extends AbstractNavigationBarMapActivity impleme
 
         menu.findItem(R.id.menu_as_list).setVisible(true);
 
+        // log visit menu items
+        final Geocache targetCache = getCurrentTargetCache();
+        LoggingUI.onPrepareOptionsMenu(menu, targetCache);
+
         MenuUtils.tintToolbarAndOverflowIcons(menu);
 
         return result;
@@ -1029,6 +1034,8 @@ public class UnifiedMapActivity extends AbstractNavigationBarMapActivity impleme
             Settings.setMapBackgroundMapLayer(!Settings.getMapBackgroundMapLayer());
             item.setChecked(Settings.getMapBackgroundMapLayer());
             changeMapSource(mapFragment.currentTileProvider);
+        } else if (LoggingUI.onMenuItemSelected(item, this, getCurrentTargetCache(), null)) {
+            return true;
         } else { // dynamic submenus: Map language, Map source
             final String language = TileProviderFactory.getLanguage(id);
             final AbstractTileProvider tileProviderLocal = TileProviderFactory.getTileProvider(id);
