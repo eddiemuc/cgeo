@@ -8,6 +8,7 @@ import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
@@ -47,14 +48,22 @@ public class DateFilter {
 
     public Date getMinDate() {
         if (isRelative) {
-            return minDateOffset == Integer.MIN_VALUE ? null : DateUtils.addDays(new Date(), minDateOffset);
+            if (minDateOffset == Integer.MIN_VALUE) {
+                return null;
+            }
+            final Date baseDate = DateUtils.truncate(new Date(), Calendar.DATE);
+            return DateUtils.addDays(baseDate, minDateOffset);
         }
         return minDate;
     }
 
     public Date getMaxDate() {
         if (isRelative) {
-            return maxDateOffset == Integer.MAX_VALUE ? null :  DateUtils.addDays(new Date(), maxDateOffset);
+            if (maxDateOffset == Integer.MAX_VALUE) {
+                return null;
+            }
+            final Date baseDate = DateUtils.truncate(new Date(), Calendar.DATE);
+            return DateUtils.addDays(baseDate, maxDateOffset);
         }
         return maxDate;
     }

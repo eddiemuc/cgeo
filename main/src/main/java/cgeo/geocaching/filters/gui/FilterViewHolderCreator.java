@@ -6,6 +6,7 @@ import cgeo.geocaching.connector.IConnector;
 import cgeo.geocaching.enumerations.CacheSize;
 import cgeo.geocaching.enumerations.CacheType;
 import cgeo.geocaching.filters.core.CategoryGeocacheFilter;
+import cgeo.geocaching.filters.core.EventDateGeocacheFilter;
 import cgeo.geocaching.filters.core.GeocacheFilterType;
 import cgeo.geocaching.filters.core.HiddenGeocacheFilter;
 import cgeo.geocaching.filters.core.IGeocacheFilter;
@@ -116,7 +117,7 @@ public class FilterViewHolderCreator {
                         LocalizationUtils.getStringArray(R.array.cache_filter_hidden_since_stored_values_label_short));
                 break;
             case EVENT_DATE:
-                result = new DateRangeFilterViewHolder<HiddenGeocacheFilter>(true,
+                result = new DateRangeFilterViewHolder<EventDateGeocacheFilter>(true,
                         LocalizationUtils.getIntArray(R.array.cache_filter_event_date_stored_values_d),
                         LocalizationUtils.getStringArray(R.array.cache_filter_event_date_stored_values_label),
                         LocalizationUtils.getStringArray(R.array.cache_filter_event_date_stored_values_label_short));
