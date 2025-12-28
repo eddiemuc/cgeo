@@ -43,8 +43,8 @@ import com.github.mikephil.charting.listener.OnChartValueSelectedListener;
 public class ElevationChart {
 
     private static final String ELEVATIONCHART_MARKER = "ELEVATIONCHARTMARKER";
-    private static final float MARKER_MIN_DISTANCE_KM = 0.02f; // 20 meters - minimum distance to show projection marker
-    private static final float MARKER_RADIUS_KM = 0.005f; // approximately 5 meters radius for good visibility
+    private static final float MARKER_MIN_DISTANCE_KM = 0.02f; // minimum distance to show projection marker (20m)
+    private static final float MARKER_RADIUS_KM = 0.005f; // marker circle radius (5m) for good visibility
     private static final float MARKER_STROKE_WIDTH_MULTIPLIER = 3f; // stroke width relative to route line width
     private final View chartBlock;
     private final LineChart chart;
@@ -250,7 +250,7 @@ public class ElevationChart {
 
     /** Creates a filled circle marker for the track projection point */
     private void createProjectionMarker(final Geopoint position) {
-        // Get the route color and line width from settings
+        // Get the route color and line width from settings (not cached as they may change at runtime)
         final int trackColor = MapLineUtils.getRouteColor();
         final int trackLineWidth = MapLineUtils.getRawRouteLineWidth();
         
