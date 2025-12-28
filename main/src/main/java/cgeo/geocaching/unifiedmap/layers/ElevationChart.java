@@ -245,7 +245,7 @@ public class ElevationChart {
     private void createProjectionMarker(final Geopoint position) {
         // Get the route color and line width from settings
         final int trackColor = MapLineUtils.getRouteColor();
-        final float trackLineWidth = MapLineUtils.getRawRouteLineWidth();
+        final int trackLineWidth = MapLineUtils.getRawRouteLineWidth();
         
         // Create a filled circle marker
         // Radius: fixed at 5 meters for good visibility at typical zoom levels
@@ -254,7 +254,7 @@ public class ElevationChart {
         final GeoStyle markerStyle = GeoStyle.builder()
                 .setStrokeColor(trackColor)
                 .setFillColor(trackColor)
-                .setStrokeWidth(trackLineWidth * 3)
+                .setStrokeWidth(trackLineWidth * 3f)
                 .build();
         
         final GeoItem marker = GeoPrimitive.createCircle(position, markerRadiusKm, markerStyle)
