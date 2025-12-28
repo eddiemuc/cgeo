@@ -518,7 +518,7 @@ public class CalculatedCoordinateInputGuideView extends LinearLayout {
         if (variableList == null) {
             return null;
         }
-        
+
         // Find the next unused variable from A-Z
         for (char c = 'A'; c <= 'Z'; c++) {
             final String varName = String.valueOf(c);
@@ -526,7 +526,7 @@ public class CalculatedCoordinateInputGuideView extends LinearLayout {
                 return varName;
             }
         }
-        
+
         return null;
     }
 
