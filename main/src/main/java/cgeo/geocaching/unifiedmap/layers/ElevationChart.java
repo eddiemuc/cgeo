@@ -44,6 +44,8 @@ public class ElevationChart {
 
     private static final String ELEVATIONCHART_MARKER = "ELEVATIONCHARTMARKER";
     private static final float MARKER_MIN_DISTANCE_KM = 0.02f; // 20 meters - minimum distance to show projection marker
+    private static final float MARKER_RADIUS_KM = 0.005f; // approximately 5 meters radius for good visibility
+    private static final float MARKER_STROKE_WIDTH_MULTIPLIER = 3f; // stroke width relative to route line width
     private final View chartBlock;
     private final LineChart chart;
     private final Resources res;
@@ -225,8 +227,13 @@ public class ElevationChart {
         chart.highlightValue(offset, x < 0 ? -1 : 0);
         chart.invalidate();
         
-        // Update projection marker if position is far enough from user
-        if (closestPoint != null && minDistance >= MARKER_MIN_DISTANCE_KM) {
+        // Update projection marker based on distance from user
+        updateProjectionMarker(closestPoint, minDistance);
+    }
+
+    /** Updates the projection marker visibility based on distance from user position */
+    private void updateProjectionMarker(final Geopoint closestPoint, final float distance) {
+        if (closestPoint != null && distance >= MARKER_MIN_DISTANCE_KM) {
             createProjectionMarker(closestPoint);
         } else {
             geoItemLayer.remove(ELEVATIONCHART_MARKER);
@@ -250,14 +257,13 @@ public class ElevationChart {
         // Create a filled circle marker
         // Radius: fixed at 5 meters for good visibility at typical zoom levels
         // Stroke width: 3x the route line width as suggested in the issue
-        final float markerRadiusKm = 0.005f; // approximately 5 meters radius
         final GeoStyle markerStyle = GeoStyle.builder()
                 .setStrokeColor(trackColor)
                 .setFillColor(trackColor)
-                .setStrokeWidth(trackLineWidth * 3f)
+                .setStrokeWidth(trackLineWidth * MARKER_STROKE_WIDTH_MULTIPLIER)
                 .build();
         
-        final GeoItem marker = GeoPrimitive.createCircle(position, markerRadiusKm, markerStyle)
+        final GeoItem marker = GeoPrimitive.createCircle(position, MARKER_RADIUS_KM, markerStyle)
                 .buildUpon()
                 .setZLevel(ZINDEX_ELEVATIONCHARTMARKERPOSITION)
                 .build();
