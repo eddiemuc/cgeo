@@ -496,12 +496,12 @@ public class CalculatedCoordinateInputGuideView extends LinearLayout {
         }
 
         // Show selection dialog
+        final List<Integer> indices = new ArrayList<>();
+        for (int i = 0; i < options.size(); i++) {
+            indices.add(i);
+        }
         final SimpleDialog.ItemSelectModel<Integer> model = new SimpleDialog.ItemSelectModel<>();
-        model.setItems(new ArrayList<Integer>() {{
-            for (int i = 0; i < options.size(); i++) {
-                add(i);
-            }
-        }})
+        model.setItems(indices)
             .setDisplayMapper(idx -> TextParam.text(options.get(idx)))
             .setChoiceMode(SimpleItemListModel.ChoiceMode.SINGLE_PLAIN);
 
