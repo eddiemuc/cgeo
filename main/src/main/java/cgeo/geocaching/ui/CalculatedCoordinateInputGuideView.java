@@ -5,10 +5,13 @@ import cgeo.geocaching.R;
 import cgeo.geocaching.activity.Keyboard;
 import cgeo.geocaching.location.Geopoint;
 import cgeo.geocaching.models.CalculatedCoordinateType;
+import cgeo.geocaching.ui.dialog.SimpleDialog;
 import cgeo.geocaching.utils.KeyableCharSet;
 import cgeo.geocaching.utils.TextParser;
 import cgeo.geocaching.utils.formulas.Formula;
 import cgeo.geocaching.utils.formulas.FormulaException;
+import cgeo.geocaching.utils.formulas.VariableList;
+import cgeo.geocaching.utils.formulas.VariableMap;
 import cgeo.geocaching.utils.functions.Func1;
 import static cgeo.geocaching.models.CalculatedCoordinateType.PLAIN;
 
@@ -34,8 +37,10 @@ import androidx.annotation.Nullable;
 import androidx.core.util.Consumer;
 import androidx.gridlayout.widget.GridLayout;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
@@ -95,6 +100,7 @@ public class CalculatedCoordinateInputGuideView extends LinearLayout {
 
     private Consumer<Pair<String, String>> changeListener = null;
     private boolean changeListenerActive = true;
+    private VariableList variableList = null;
 
     public CalculatedCoordinateInputGuideView(final Context context, final AttributeSet attrs, final int defStyle) {
         super(context, attrs, defStyle);
@@ -113,6 +119,10 @@ public class CalculatedCoordinateInputGuideView extends LinearLayout {
 
     public void setChangeListener(final Consumer<Pair<String, String>> changeListener) {
         this.changeListener = changeListener;
+    }
+
+    public void setVariableList(final VariableList variableList) {
+        this.variableList = variableList;
     }
 
     /**
@@ -446,6 +456,80 @@ public class CalculatedCoordinateInputGuideView extends LinearLayout {
         this.markedButton = newButton;
     }
 
+    private void showVariableSelectionDialog(final CharButton button) {
+        if (variableList == null) {
+            return;
+        }
+
+        // Build list of options
+        final List<String> options = new ArrayList<>();
+        final List<String> optionValues = new ArrayList<>();
+
+        // Add "Clear" option
+        options.add(getContext().getString(R.string.log_clear));
+        optionValues.add("");
+
+        // Add "New: X" option (next unused variable)
+        final String nextVar = getNextUnusedVariable();
+        if (nextVar != null) {
+            options.add(getContext().getString(R.string.calccoord_new_variable, nextVar));
+            optionValues.add(nextVar);
+        }
+
+        // Add existing variables with their values
+        final List<String> varList = variableList.asList();
+        for (final String varName : varList) {
+            if (!VariableList.isVisible(varName)) {
+                continue;
+            }
+            final VariableMap.VariableState state = variableList.getState(varName);
+            if (state == null) {
+                continue;
+            }
+            final String formula = state.getFormulaString();
+            if (StringUtils.isBlank(formula)) {
+                options.add(varName);
+            } else {
+                options.add(varName + " = " + formula);
+            }
+            optionValues.add(varName);
+        }
+
+        // Show selection dialog
+        final SimpleDialog.ItemSelectModel<Integer> model = new SimpleDialog.ItemSelectModel<>();
+        model.setItems(new ArrayList<Integer>() {{
+            for (int i = 0; i < options.size(); i++) {
+                add(i);
+            }
+        }})
+            .setDisplayMapper(idx -> TextParam.text(options.get(idx)))
+            .setChoiceMode(SimpleItemListModel.ChoiceMode.SINGLE_PLAIN);
+
+        SimpleDialog.of((android.app.Activity) getContext())
+            .setTitle(R.string.calccoord_select_variable)
+            .selectSingle(model, selectedIdx -> {
+                if (selectedIdx != null && selectedIdx >= 0 && selectedIdx < optionValues.size()) {
+                    button.setText(optionValues.get(selectedIdx));
+                }
+            });
+    }
+
+    private String getNextUnusedVariable() {
+        if (variableList == null) {
+            return null;
+        }
+        
+        // Find the next unused variable from A-Z
+        for (char c = 'A'; c <= 'Z'; c++) {
+            final String varName = String.valueOf(c);
+            if (!variableList.contains(varName)) {
+                return varName;
+            }
+        }
+        
+        return null;
+    }
+
     @Override
     public void onDetachedFromWindow() {
         super.onDetachedFromWindow();
@@ -518,6 +602,10 @@ public class CalculatedCoordinateInputGuideView extends LinearLayout {
             butt.setText("0");
 
             super.setOnClickListener(v -> markButton(this));
+            super.setOnLongClickListener(v -> {
+                showVariableSelectionDialog(this);
+                return true;
+            });
         }
 
         private void initView() {

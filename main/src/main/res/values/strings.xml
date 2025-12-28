@@ -1979,6 +1979,8 @@
     <string name="calccoord_remove_spaces">Remove spaces</string>
     <string name="calccoord_replace_x_with_multiplication_symbol">Replace \'x\' with \'*\'</string>
     <string name="calccoord_paste_from_clipboard">Paste from clipboard</string>
+    <string name="calccoord_select_variable">Select Variable</string>
+    <string name="calccoord_new_variable">New: %s</string>
 
     <string name="calccoord_generate_title">Generate Waypoints</string>
     <string name="calccoord_generate_showonmap">Show on Map</string>

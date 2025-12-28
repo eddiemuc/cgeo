@@ -241,6 +241,7 @@ public class CoordinatesCalculateGlobalDialog extends DialogFragment {
             varListAdapter.checkAddVisibleVariables(calcCoord.getNeededVars());
             updateView();
         });
+        binding.NonPlainFormat.setVariableList(varList);
 
         binding.ccSwitchGuided.setOnCheckedChangeListener((v, c) -> {
             if (!c) {
