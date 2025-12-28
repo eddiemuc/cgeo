@@ -8,13 +8,13 @@ import cgeo.geocaching.location.Units;
 import cgeo.geocaching.maps.RouteTrackUtils;
 import cgeo.geocaching.models.Route;
 import cgeo.geocaching.models.RouteSegment;
-import cgeo.geocaching.models.geoitem.GeoIcon;
 import cgeo.geocaching.models.geoitem.GeoItem;
 import cgeo.geocaching.models.geoitem.GeoPrimitive;
+import cgeo.geocaching.models.geoitem.GeoStyle;
 import cgeo.geocaching.settings.Settings;
 import cgeo.geocaching.unifiedmap.geoitemlayer.GeoItemLayer;
-import cgeo.geocaching.utils.ImageUtils;
 import cgeo.geocaching.utils.LifecycleAwareBroadcastReceiver;
+import cgeo.geocaching.utils.MapLineUtils;
 import cgeo.geocaching.utils.MenuUtils;
 import static cgeo.geocaching.unifiedmap.LayerHelper.ZINDEX_ELEVATIONCHARTMARKERPOSITION;
 import static cgeo.geocaching.utils.DisplayUtils.getDimensionInDp;
@@ -25,7 +25,6 @@ import android.widget.LinearLayout;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
-import androidx.core.content.res.ResourcesCompat;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -44,6 +43,7 @@ import com.github.mikephil.charting.listener.OnChartValueSelectedListener;
 public class ElevationChart {
 
     private static final String ELEVATIONCHART_MARKER = "ELEVATIONCHARTMARKER";
+    private static final float MARKER_MIN_DISTANCE_KM = 0.02f; // 20 meters - minimum distance to show projection marker
     private final View chartBlock;
     private final LineChart chart;
     private final Resources res;
@@ -52,6 +52,7 @@ public class ElevationChart {
     private final List<Entry> entries = new ArrayList<>();
     private float offset = 0f;
     private Geopoint lastShownPosition = null;
+    private Geopoint lastUserPosition = null;
     private boolean expanded = Settings.getBoolean(R.string.pref_elevationChartExpanded, false);
 
     public ElevationChart(final AppCompatActivity activity, final GeoItemLayer<String> geoItemLayer) {
@@ -89,8 +90,7 @@ public class ElevationChart {
                     final Geopoint center = (Geopoint) e.getData();
                     // update marker if position found
                     if (center != null) {
-                        final GeoItem marker = GeoPrimitive.createMarker(center, GeoIcon.builder().setBitmap(ImageUtils.convertToBitmap(ResourcesCompat.getDrawable(CgeoApplication.getInstance().getResources(), R.drawable.circle, null))).build()).buildUpon().setZLevel(ZINDEX_ELEVATIONCHARTMARKERPOSITION).build();
-                        geoItemLayer.put(ELEVATIONCHART_MARKER, marker);
+                        createProjectionMarker(center);
                     }
                 }
 
@@ -198,6 +198,8 @@ public class ElevationChart {
 
     /** find position on track closest to given coords (max 100m) and highlight it */
     public void showPositionOnTrack(final Geopoint coords) {
+        // store user position for later comparison
+        lastUserPosition = coords;
         // calculate new position on track only if minimum distance reached
         if (lastShownPosition != null && coords.distanceTo(lastShownPosition) < 0.05f) {
             return;
@@ -207,11 +209,14 @@ public class ElevationChart {
         float minDistance = 0.1f;
         int x = -1;
         int index = 0;
+        Geopoint closestPoint = null;
         for (Entry entry : entries) {
-            final float distance = ((Geopoint) entry.getData()).distanceTo(coords);
+            final Geopoint entryPoint = (Geopoint) entry.getData();
+            final float distance = entryPoint.distanceTo(coords);
             if (distance < minDistance) {
                 x = index;
                 minDistance = distance;
+                closestPoint = entryPoint;
             }
             index++;
         }
@@ -219,13 +224,43 @@ public class ElevationChart {
         offset = x < 0 ? 0f : entries.get(x).getX();
         chart.highlightValue(offset, x < 0 ? -1 : 0);
         chart.invalidate();
+        
+        // Update projection marker if position is far enough from user
+        if (closestPoint != null && minDistance >= MARKER_MIN_DISTANCE_KM) {
+            createProjectionMarker(closestPoint);
+        } else {
+            geoItemLayer.remove(ELEVATIONCHART_MARKER);
+        }
     }
 
     /** hides chart and map marker */
     private void closeChart(final GeoItemLayer<String> geoItemLayer) {
         chartBlock.setVisibility(View.GONE);
         geoItemLayer.remove(ELEVATIONCHART_MARKER);
+        lastUserPosition = null;
         LifecycleAwareBroadcastReceiver.sendBroadcast(chart.getContext(), Intents.ACTION_ELEVATIONCHART_CLOSED);
+    }
+
+    /** Creates a filled circle marker for the track projection point */
+    private void createProjectionMarker(final Geopoint position) {
+        // Get the track color and line width from settings
+        final int trackColor = MapLineUtils.getRouteColor();
+        final float trackLineWidth = MapLineUtils.getRawRouteLineWidth();
+        
+        // Create a filled circle with 3x the track line width (converted to radius in km)
+        // The radius is very small as it's in km - we use a small value to create a visible dot
+        final float markerRadiusKm = 0.005f; // approximately 5 meters radius
+        final GeoStyle markerStyle = GeoStyle.builder()
+                .setStrokeColor(trackColor)
+                .setFillColor(trackColor)
+                .setStrokeWidth(trackLineWidth * 3)
+                .build();
+        
+        final GeoItem marker = GeoPrimitive.createCircle(position, markerRadiusKm, markerStyle)
+                .buildUpon()
+                .setZLevel(ZINDEX_ELEVATIONCHARTMARKERPOSITION)
+                .build();
+        geoItemLayer.put(ELEVATIONCHART_MARKER, marker);
     }
 
     /** resize elevation chart 1:1 vs. 1:3 in relation to map size */
