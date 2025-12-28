@@ -243,12 +243,13 @@ public class ElevationChart {
 
     /** Creates a filled circle marker for the track projection point */
     private void createProjectionMarker(final Geopoint position) {
-        // Get the track color and line width from settings
+        // Get the route color and line width from settings
         final int trackColor = MapLineUtils.getRouteColor();
         final float trackLineWidth = MapLineUtils.getRawRouteLineWidth();
         
-        // Create a filled circle with 3x the track line width (converted to radius in km)
-        // The radius is very small as it's in km - we use a small value to create a visible dot
+        // Create a filled circle marker
+        // Radius: fixed at 5 meters for good visibility at typical zoom levels
+        // Stroke width: 3x the route line width as suggested in the issue
         final float markerRadiusKm = 0.005f; // approximately 5 meters radius
         final GeoStyle markerStyle = GeoStyle.builder()
                 .setStrokeColor(trackColor)
