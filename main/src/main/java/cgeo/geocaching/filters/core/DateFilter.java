@@ -39,10 +39,25 @@ public class DateFilter {
             return getMinDate() == null && getMaxDate() == null ? true : null;
         }
 
-        if (getMinDate() != null && getMinDate().getTime() / MILLIS_PER_DAY > value.getTime() / MILLIS_PER_DAY) {
+        if (getMinDate() != null && compareDates(getMinDate(), value) > 0) {
             return false;
         }
-        return getMaxDate() == null || getMaxDate().getTime() / MILLIS_PER_DAY >= value.getTime() / MILLIS_PER_DAY;
+        return getMaxDate() == null || compareDates(getMaxDate(), value) >= 0;
+    }
+
+    /**
+     * Compares two dates by calendar day (year, month, day), ignoring time.
+     * This ensures proper timezone-aware comparison.
+     *
+     * @param date1 first date to compare
+     * @param date2 second date to compare
+     * @return negative if date1 is before date2, positive if date1 is after date2, zero if same day
+     */
+    private int compareDates(final Date date1, final Date date2) {
+        // Use truncate to normalize both dates to midnight in local timezone, then compare
+        final Date truncatedDate1 = DateUtils.truncate(date1, java.util.Calendar.DATE);
+        final Date truncatedDate2 = DateUtils.truncate(date2, java.util.Calendar.DATE);
+        return truncatedDate1.compareTo(truncatedDate2);
     }
 
     public Date getMinDate() {
