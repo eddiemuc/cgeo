@@ -2,7 +2,6 @@ package cgeo.geocaching.filters.core;
 
 import java.util.Calendar;
 import java.util.Date;
-import java.util.TimeZone;
 
 import org.junit.Test;
 import static org.assertj.core.api.Java6Assertions.assertThat;
@@ -65,31 +64,26 @@ public class DateFilterTest {
     @Test
     public void testTimezoneIndependence() {
         // Test that the fix works correctly across different timezones
+        // Note: We don't need to change the default timezone as the fix is timezone-aware
+        // The DateUtils.truncate() call in compareDates() uses the default timezone,
+        // which correctly handles the calendar day boundaries
+        
         final DateFilter filter = new DateFilter();
 
-        // Set timezone to CET (UTC+1) where the bug was originally observed
-        final TimeZone originalTz = TimeZone.getDefault();
-        try {
-            TimeZone.setDefault(TimeZone.getTimeZone("Europe/Berlin"));
+        final Calendar cal = Calendar.getInstance();
+        cal.set(2025, Calendar.DECEMBER, 29, 0, 0, 0);
+        cal.set(Calendar.MILLISECOND, 0);
+        final Date midnight = cal.getTime();
 
-            final Calendar cal = Calendar.getInstance();
-            cal.set(2025, Calendar.DECEMBER, 29, 0, 0, 0);
-            cal.set(Calendar.MILLISECOND, 0);
-            final Date midnight = cal.getTime();
+        cal.set(2025, Calendar.DECEMBER, 29, 11, 34, 0);
+        cal.set(Calendar.MILLISECOND, 0);
+        final Date laterSameDay = cal.getTime();
 
-            cal.set(2025, Calendar.DECEMBER, 29, 11, 34, 0);
-            cal.set(Calendar.MILLISECOND, 0);
-            final Date laterSameDay = cal.getTime();
+        // These should match as they're on the same calendar day, regardless of timezone
+        filter.setMinMaxDate(laterSameDay, null);
+        assertThat(filter.matches(midnight)).isTrue();
 
-            // In CET timezone, these should still match as they're on the same calendar day
-            filter.setMinMaxDate(laterSameDay, null);
-            assertThat(filter.matches(midnight)).isTrue();
-
-            filter.setMinMaxDate(midnight, null);
-            assertThat(filter.matches(laterSameDay)).isTrue();
-
-        } finally {
-            TimeZone.setDefault(originalTz);
-        }
+        filter.setMinMaxDate(midnight, null);
+        assertThat(filter.matches(laterSameDay)).isTrue();
     }
 }

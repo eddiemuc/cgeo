@@ -8,7 +8,6 @@ import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
@@ -55,23 +54,10 @@ public class DateFilter {
      * @return negative if date1 is before date2, positive if date1 is after date2, zero if same day
      */
     private int compareDates(final Date date1, final Date date2) {
-        final Calendar cal1 = Calendar.getInstance();
-        cal1.setTime(date1);
-        final Calendar cal2 = Calendar.getInstance();
-        cal2.setTime(date2);
-
-        // Compare year, month, and day
-        final int yearDiff = cal1.get(Calendar.YEAR) - cal2.get(Calendar.YEAR);
-        if (yearDiff != 0) {
-            return yearDiff;
-        }
-
-        final int monthDiff = cal1.get(Calendar.MONTH) - cal2.get(Calendar.MONTH);
-        if (monthDiff != 0) {
-            return monthDiff;
-        }
-
-        return cal1.get(Calendar.DAY_OF_MONTH) - cal2.get(Calendar.DAY_OF_MONTH);
+        // Use truncate to normalize both dates to midnight in local timezone, then compare
+        final Date truncatedDate1 = DateUtils.truncate(date1, java.util.Calendar.DATE);
+        final Date truncatedDate2 = DateUtils.truncate(date2, java.util.Calendar.DATE);
+        return truncatedDate1.compareTo(truncatedDate2);
     }
 
     public Date getMinDate() {
